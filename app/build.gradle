@@ -1,0 +1,56 @@
+plugins {
+    alias(libs.plugins.android.application)
+    id 'com.google.gms.google-services' // ✅ Added Google Services plugin correctly
+}
+
+android {
+    namespace 'com.knowledgenest'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.knowledgenest"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+
+    // ✅ Firebase Dependencies
+    implementation libs.firebase.auth.v2211
+    implementation libs.firebase.database.v2031
+    implementation libs.firebase.storage.v2030
+    implementation libs.firebase.firestore // Firestorm (if needed)
+    implementation libs.firebase.analytics // Firebase Analytics
+    implementation libs.firebase.messaging // Firebase Cloud Messaging
+
+    // ✅ Google Sign-In
+    implementation libs.play.services.auth.v2070
+
+    // ✅ Kotlin Coroutines (Optional, for Firebase async operations)
+    implementation libs.kotlinx.coroutines.android
+}

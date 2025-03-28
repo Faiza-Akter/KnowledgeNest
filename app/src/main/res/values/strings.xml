@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">KnowledgeNest</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="knowledgeNest">KnowledgeNest</string>
+    <string name="example">example@gmail.com</string>
+    <string name="star">********</string>
+    <string name="signUp">Sign Up</string>
+    <string name="signIn">Sign In</string>
+    <string name="logN">Login</string>
+    <string name="alreadyHaveAnAccount">Already have an account?</string>
+    <string name="logInNow">Login Now</string>
+    <string name="textView2">Here\'s\nYour First\nStep With\nUs!</string>
+    <string name="textView3">Already\nHave An \nAccount?</string>
+    <string name="dontHaveAnAccount">Don\'t have an account?</string>
+    <string name="forgetPass">Forgot Password</string>
+    <string name="forgetP">Forgot Password?</string>
+    <string name="forget">FORGOT PASSWORD</string>
+    <string name="backTo">Back to </string>
+    <string name="default_web_client_id">299717603631-6jt5su5c2aejev0h8s1gkfc1gjiqlkt0.apps.googleusercontent.com</string>
+
+</resources>
