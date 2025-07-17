@@ -16,7 +16,7 @@ import com.knowledgenest.databinding.RvPlaylistDesignBinding;
 
 import java.util.ArrayList;
 
-
+//Pushing PlaylistAdapter
 public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.viewHolder> {
     Context context;
     ArrayList<PlayListModel>list;
