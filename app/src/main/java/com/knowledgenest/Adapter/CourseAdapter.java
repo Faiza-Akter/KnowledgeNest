@@ -28,6 +28,7 @@ import java.util.ArrayList;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder> {
 
+    //Pushing CourseAdapter
     private static final String TAG = "CourseAdapter";
     private Context context;
     private ArrayList<CourseModel> courseList;
