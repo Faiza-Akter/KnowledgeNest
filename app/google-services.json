@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "759996151717",
-    "firebase_url": "https://knowledgenest-b55b5-default-rtdb.firebaseio.com",
-    "project_id": "knowledgenest-b55b5",
-    "storage_bucket": "knowledgenest-b55b5.firebasestorage.app"
+    "project_number": "53325915531",
+    "firebase_url": "https://knowledge-nest-ff0a2-default-rtdb.firebaseio.com",
+    "project_id": "knowledge-nest-ff0a2",
+    "storage_bucket": "knowledge-nest-ff0a2.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:759996151717:android:1bca2f9599f7338c9a1a4c",
+        "mobilesdk_app_id": "1:53325915531:android:12b714b6e8937d75153b8e",
         "android_client_info": {
           "package_name": "com.knowledgenest"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAizcbDd-Wg1e4ugbV2Kzi63Z0mYxBdzXA"
+          "current_key": "AIzaSyC8IdWdsVWDIJVirbH3Gc59W5kXkJFhTIQ"
         }
       ],
       "services": {

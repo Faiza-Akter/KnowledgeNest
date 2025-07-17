@@ -2,10 +2,17 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+            <!-- Define the colors for the attributes -->
+           <!-- Replace with your desired color -->
+    <color name="cnb_iconcolor">#673AB7</color> <!-- Or any color you want -->
+    <color name="cnb_textcolor">#000000</color> <!-- Or any color you want -->
+
+
     <color name="blue">#2A64F6</color>
     <color name="softPurple">#F5CDFF</color>
     <color name="purple">#DB00FF</color>
     <color name="yellow">#FFD100</color>
     <color name="orange">#ff561e</color>
     <color name="background">#DB00FF</color>
+    <color name="status_color">#5E38A4</color>
 </resources>
