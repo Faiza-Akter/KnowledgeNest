@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ChipNavigationBar">
+        <attr name="cnb_iconcolor" format="color" />
+        <attr name="cnb_textcolor" format="color" />
+    </declare-styleable>
+</resources>

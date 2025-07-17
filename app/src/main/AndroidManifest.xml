@@ -2,11 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.knowledgenest">
+    <!--   changes in android menifest-->
+
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+
+
 
     <application
         android:allowBackup="true"
@@ -19,27 +23,40 @@
         android:theme="@style/Theme.KnowledgeNest"
         tools:targetApi="31">
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Login.ForgetPasswordActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Login.SignInActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Login.SignUpActivity"
-            android:exported="false" />
+        <!-- Splash Screen is now the launcher -->
         <activity
             android:name=".SplashScreenActivity"
-            android:exported="true">
+            android:exported="true"
+            android:label="@string/label_splash_screen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- Login and other activities -->
+        <activity
+            android:name=".Login.SignInActivity"
+            android:exported="false"
+            android:label="@string/label_signin_activity" />
+        <activity
+            android:name=".Login.SignUpActivity"
+            android:exported="false"
+            android:label="@string/label_signup_activity" />
+        <activity
+            android:name=".Login.ForgetPasswordActivity"
+            android:exported="false"
+            android:label="@string/label_forget_password_activity" />
+
+        <!-- Main content activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/label_main_activity" />
+
+        <activity
+            android:name=".PlayListActivity"
+            android:exported="false" />
+
+    </application>
 </manifest>

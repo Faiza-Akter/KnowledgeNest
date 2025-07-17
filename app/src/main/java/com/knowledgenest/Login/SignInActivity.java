@@ -1,19 +1,19 @@
 package com.knowledgenest.Login;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -23,12 +23,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.knowledgenest.MainActivity;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivitySignInBinding;
-import com.knowledgenest.databinding.ActivitySignUpBinding;
 
 public class SignInActivity extends AppCompatActivity {
 
     ActivitySignInBinding binding;
-
     FirebaseAuth auth;
     FirebaseDatabase database;
     Dialog loadingDialog;
@@ -36,40 +34,46 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        binding= ActivitySignInBinding.inflate(getLayoutInflater());
+        binding = ActivitySignInBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
 
-        loadingDialog= new Dialog(SignInActivity.this);
+        // Setup loading dialog
+        loadingDialog = new Dialog(this);
         loadingDialog.setContentView(R.layout.loading_dialog);
-
-        if (loadingDialog.getWindow() !=null){
-
+        if (loadingDialog.getWindow() != null) {
             loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             loadingDialog.setCancelable(false);
         }
 
-
         binding.btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String email = binding.edtEmail.getText().toString().trim();
+                String password = binding.edtPassword.getText().toString().trim();
 
-                String email = binding.edtEmail.getText().toString();
-                String password = binding.edtPassword.getText().toString();
-
-                 if (email.isEmpty()){
-
+                if (email.isEmpty()) {
                     binding.edtEmail.setError("Enter your email");
-
-                }else if (password.isEmpty()){
-
+                    binding.edtEmail.requestFocus();
+                } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    binding.edtEmail.setError("Enter a valid email");
+                    binding.edtEmail.requestFocus();
+                } else if (password.isEmpty()) {
                     binding.edtPassword.setError("Enter your password");
-                }
-                else {
-                    signIn(email,password);
+                    binding.edtPassword.requestFocus();
+                } else if (password.length() < 6) {
+                    binding.edtPassword.setError("Password must be at least 6 characters");
+                    binding.edtPassword.requestFocus();
+                } else {
+                    if (!isNetworkAvailable()) {
+                        Toast.makeText(SignInActivity.this,
+                                "No internet connection",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    signIn(email, password);
                 }
             }
         });
@@ -77,9 +81,7 @@ public class SignInActivity extends AppCompatActivity {
         binding.createAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent(SignInActivity.this,SignUpActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
                 finish();
             }
         });
@@ -87,53 +89,49 @@ public class SignInActivity extends AppCompatActivity {
         binding.forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent(SignInActivity.this,ForgetPasswordActivity.class);
-                startActivity(intent);
-
+                startActivity(new Intent(SignInActivity.this, ForgetPasswordActivity.class));
             }
         });
 
-        if (auth.getCurrentUser() != null){
-
-            Intent intent = new Intent(SignInActivity.this,MainActivity.class);
-            startActivity(intent);
+        // Auto-login if already verified
+        if (auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified()) {
+            startActivity(new Intent(SignInActivity.this, MainActivity.class));
             finish();
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     private void signIn(String email, String password) {
         loadingDialog.show();
 
-        auth.createUserWithEmailAndPassword(email, password)
+        auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-
-                        if (task.isSuccessful()){
-
-                            if (auth.getCurrentUser().isEmailVerified()){
-
+                        if (task.isSuccessful()) {
+                            if (auth.getCurrentUser().isEmailVerified()) {
                                 loadingDialog.dismiss();
-                                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                                startActivity(intent);
+                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
                                 finish();
-
-                            }
-                            else {
-
+                            } else {
                                 loadingDialog.dismiss();
-                                Toast.makeText(SignInActivity.this, "Your email id is not verified so verify first to login", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SignInActivity.this,
+                                        "Please verify your email first. Check your inbox.",
+                                        Toast.LENGTH_LONG).show();
+                                auth.signOut();
                             }
+                        } else {
+                            loadingDialog.dismiss();
+                            Toast.makeText(SignInActivity.this,
+                                    "Login failed: " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                         }
-                        else{
-
-                            Toast.makeText(SignInActivity.this,task.getException().toString(), Toast.LENGTH_SHORT).show();
-                        }
-
                     }
                 });
     }
-
-
 }

@@ -1,53 +1,49 @@
 package com.knowledgenest.Login;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.knowledgenest.Model.UserModel;
-import com.knowledgenest.R;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.knowledgenest.Model.UserModel;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivitySignUpBinding;
 
 public class SignUpActivity extends AppCompatActivity {
-    ActivitySignUpBinding binding;
 
+    ActivitySignUpBinding binding;
     FirebaseAuth auth;
     FirebaseDatabase database;
     Dialog loadingDialog;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        binding= ActivitySignUpBinding.inflate(getLayoutInflater());
+        binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
 
-        loadingDialog= new Dialog(SignUpActivity.this);
+        // Setup loading dialog
+        loadingDialog = new Dialog(this);
         loadingDialog.setContentView(R.layout.loading_dialog);
-
-        if (loadingDialog.getWindow() !=null){
-
+        if (loadingDialog.getWindow() != null) {
             loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             loadingDialog.setCancelable(false);
         }
@@ -55,25 +51,33 @@ public class SignUpActivity extends AppCompatActivity {
         binding.btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String name = binding.edtName.getText().toString().trim();
+                String email = binding.edtEmail.getText().toString().trim();
+                String password = binding.edtPassword.getText().toString().trim();
 
-                String name = binding.edtName.getText().toString();
-                String email = binding.edtEmail.getText().toString();
-                String password = binding.edtPassword.getText().toString();
-
-                if (name.isEmpty()){
-
+                if (name.isEmpty()) {
                     binding.edtName.setError("Enter your name");
-
-                } else if (email.isEmpty()){
-
+                    binding.edtName.requestFocus();
+                } else if (email.isEmpty()) {
                     binding.edtEmail.setError("Enter your email");
-
-                }else if (password.isEmpty()){
-
+                    binding.edtEmail.requestFocus();
+                } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    binding.edtEmail.setError("Enter a valid email");
+                    binding.edtEmail.requestFocus();
+                } else if (password.isEmpty()) {
                     binding.edtPassword.setError("Enter your password");
-                }
-                else {
-                    signup(name,email,password);
+                    binding.edtPassword.requestFocus();
+                } else if (password.length() < 6) {
+                    binding.edtPassword.setError("Password must be at least 6 characters");
+                    binding.edtPassword.requestFocus();
+                } else {
+                    if (!isNetworkAvailable()) {
+                        Toast.makeText(SignUpActivity.this,
+                                "No internet connection",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    signup(name, email, password);
                 }
             }
         });
@@ -81,13 +85,16 @@ public class SignUpActivity extends AppCompatActivity {
         binding.alreadyAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent(SignUpActivity.this,SignInActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                 finish();
             }
         });
+    }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     private void signup(String name, String email, String password) {
@@ -98,43 +105,54 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            String userId = task.getResult().getUser().getUid();
+                            String userId = auth.getCurrentUser().getUid();
+                            UserModel model = new UserModel(
+                                    name,
+                                    email,
+                                    password,
+                                    "https://firebasestorage.googleapis.com/v0/b/knowledge-nest-ff0a2.firebasestorage.app/o/pp.png.png?alt=media&token=e279cead-3799-4059-8e50-5070d8d9c561"
+                            );
 
-                            // ✅ Use updated constructor (without profile)
-                            UserModel model = new UserModel(name, email, password);
-
-                            // ✅ Store user in Firebase Realtime Database
                             database.getReference().child("user_details").child(userId)
-                                    .setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    .setValue(model)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-
-                                            if(task.isSuccessful()){
-
-                                                auth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-
-                                                        loadingDialog.dismiss();
-
-                                                        Toast.makeText(SignUpActivity.this, "Register Successfully, please verify your email id", Toast.LENGTH_SHORT).show();
-                                                        onBackPressed();
-                                                    }
-                                                });
-
-                                            }
-                                            else {
-
+                                            if (task.isSuccessful()) {
+                                                auth.getCurrentUser().sendEmailVerification()
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                loadingDialog.dismiss();
+                                                                if (task.isSuccessful()) {
+                                                                    Toast.makeText(SignUpActivity.this,
+                                                                            "Registration successful! Please verify your email",
+                                                                            Toast.LENGTH_LONG).show();
+                                                                    auth.signOut();
+                                                                    startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
+                                                                    finish();
+                                                                } else {
+                                                                    Toast.makeText(SignUpActivity.this,
+                                                                            "Failed to send verification email: " + task.getException().getMessage(),
+                                                                            Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            }
+                                                        });
+                                            } else {
                                                 loadingDialog.dismiss();
-                                                Toast.makeText(SignUpActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(SignUpActivity.this,
+                                                        "Failed to save user data: " + task.getException().getMessage(),
+                                                        Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
-
-
+                        } else {
+                            loadingDialog.dismiss();
+                            Toast.makeText(SignUpActivity.this,
+                                    "Registration failed: " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
-
 }
