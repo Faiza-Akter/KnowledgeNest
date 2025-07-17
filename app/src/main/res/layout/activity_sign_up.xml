@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/loginbkg"
+    android:background="@drawable/edited1"
     tools:context=".Login.SignUpActivity">
 
     <LinearLayout
@@ -140,7 +140,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/alreadyHaveAnAccount"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textSize="12dp" />
 
                 <TextView
                     android:id="@+id/alreadyAccount"

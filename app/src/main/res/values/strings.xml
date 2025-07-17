@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">KnowledgeNest</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
@@ -8,16 +8,83 @@
     <string name="star">********</string>
     <string name="signUp">Sign Up</string>
     <string name="signIn">Sign In</string>
+    <string name="profile_updated">Profile image updated</string>
+
     <string name="logN">Login</string>
     <string name="alreadyHaveAnAccount">Already have an account?</string>
     <string name="logInNow">Login Now</string>
     <string name="textView2">Here\'s\nYour First\nStep With\nUs!</string>
-    <string name="textView3">Already\nHave An \nAccount?</string>
+    <string name="textView3">Already\nHave An\nAccount?</string>
     <string name="dontHaveAnAccount">Don\'t have an account?</string>
     <string name="forgetPass">Forgot Password</string>
     <string name="forgetP">Forgot Password?</string>
     <string name="forget">FORGOT PASSWORD</string>
-    <string name="backTo">Back to </string>
+    <string name="backTo">Back to</string>
+    <string name="profile">Profile</string>
+    <string name="home">Home</string>
+
     <string name="default_web_client_id">299717603631-6jt5su5c2aejev0h8s1gkfc1gjiqlkt0.apps.googleusercontent.com</string>
 
+    <!-- Activity Labels -->
+    <string name="label_splash_screen">Knowledge Nest</string>
+    <string name="label_main_activity">Main Activity</string>
+    <string name="label_signin_activity">Sign In</string>
+    <string name="label_signup_activity">Sign Up</string>
+    <string name="label_forget_password_activity">Forgot Password</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- New Strings for ProfileFragment -->
+    <string name="profile_picture">Profile Picture</string>
+    <string name="terms_conditions">Terms and Conditions Icon</string>
+    <string name="rate_us">Rate Us Icon</string>
+    <string name="knowledge_nest_email">KnowledgeNest@gmail.com</string>
+    <string name="share">Share Icon</string>
+    <string name="logout">Logout Icon</string>
+    <string name="home_fragment">Home Fragment</string>
+    <string name="playlist">PlayList</string>
+    <string name="app_development">App development</string>
+    <string name="created_by_tbf">Created by TBF</string>
+    <string name="_5_0">5.0</string>
+    <string name="_12_hours">12 Hours</string>
+    <string name="_50">$50</string>
+    <string name="description">Description</string>
+    <string name="textview">TextView</string>
+    <string name="enroll_now">Enroll Now</string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="rate_us_on_play_store">Rate us on Play Store</string>
+    <string name="_10">$10</string>
+    <string name="i_agree">I AGREE</string>
+
+    <string name="terms_and_conditions_content">
+    Terms and Conditions
+
+    Last Updated: April 30, 2025.
+
+    Welcome to Knowledge Nest! These Terms and Conditions outline the rules and regulations for the use of our application.
+
+    1. Acceptance of Terms:
+     By accessing or using the Knowledge Nest app, you agree to be bound by these Terms.
+
+    2. User Account:
+     You are responsible for maintaining the confidentiality of your account and password.
+
+    3. Intellectual Property:
+     All content in the app is the property of Knowledge Nest or its content suppliers.
+
+    4. User Conduct:
+     You agree not to use the app for any unlawful purpose or in any way that might harm others.
+
+    5. Privacy:
+     Your use of the app is subject to our Privacy Policy.
+
+    6. Limitation of Liability:
+     Knowledge Nest will not be liable for any damages resulting from app use.
+
+    7. Changes to Terms:
+     We may modify these terms at any time. Continued use constitutes acceptance.
+
+    8. Governing Law:
+     These terms shall be governed by the laws of your country.
+</string>
 </resources>
+

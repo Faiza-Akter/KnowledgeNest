@@ -21,8 +21,8 @@
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:layout_height="match_parent"
+            android:padding="30dp"
             android:text="@string/textView3"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -32,12 +32,12 @@
         android:id="@+id/cardView"
         android:layout_width="370dp"
         android:layout_height="420dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="96dp"
         android:background="@drawable/border"
         app:cardCornerRadius="30dp"
         app:cardElevation="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintHorizontal_bias="0.609"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/linearLayout">
 
@@ -92,6 +92,7 @@
                 android:textColorHint="#A2A2A2"
                 android:textSize="17sp"
                 tools:ignore="RtlSymmetry" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -117,12 +118,12 @@
             <Button
                 android:id="@+id/btnSignIn"
                 android:layout_width="match_parent"
-                android:text="@string/signIn"
                 android:layout_height="60dp"
                 android:layout_marginTop="40dp"
                 android:backgroundTint="@color/blue"
                 android:clickable="true"
                 android:focusable="true"
+                android:text="@string/signIn"
                 android:textSize="23sp"
                 android:textStyle="bold" />
 
