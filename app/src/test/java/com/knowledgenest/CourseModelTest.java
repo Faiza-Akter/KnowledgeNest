@@ -27,10 +27,10 @@ public class CourseModelTest {
         CourseModel course = new CourseModel("Java", "3h", "4.5", "Learn Java",
                 500, "thumb.png", "intro.mp4", "admin", "true");
 
-        assertEquals("Java", course.getTitle());
+        assertEquals("Java" , course.getTitle());
         assertEquals("3h", course.getDuration());
         assertEquals("4.5", course.getRating());
-        assertEquals("Learn Java", course.getDescription());
+        assertEquals( "Learn Java", course.getDescription());
         assertEquals(500, course.getPrice());
         assertEquals("thumb.png", course.getThumbnail());
         assertEquals("intro.mp4", course.getIntrovideo());
