@@ -1,4 +1,4 @@
-package com.knowledgenest;
+package com.knowledgenest.Login;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
