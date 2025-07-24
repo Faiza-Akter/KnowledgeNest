@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CourseModelTest {
 
+
+
     @Test
     public void testDefaultConstructor() {
         CourseModel course = new CourseModel();
