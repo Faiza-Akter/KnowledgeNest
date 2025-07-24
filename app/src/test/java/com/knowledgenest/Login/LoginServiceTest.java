@@ -1,13 +1,11 @@
 
 
-package com.knowledgenest;
+package com.knowledgenest.Login;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.knowledgenest.Login.LoginService;
-import com.knowledgenest.Login.SignUpService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
