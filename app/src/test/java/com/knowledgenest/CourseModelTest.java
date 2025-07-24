@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CourseModelTest {
 
+
+
     @Test
     public void testDefaultConstructor() {
         CourseModel course = new CourseModel();
@@ -17,6 +19,8 @@ public class CourseModelTest {
     }
 
     @Test
+
+
     public void testTitleOnlyConstructor() {
         CourseModel course = new CourseModel("Java Basics");
         assertEquals("Java Basics", course.getTitle());
