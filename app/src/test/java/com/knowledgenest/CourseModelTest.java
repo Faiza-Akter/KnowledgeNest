@@ -19,6 +19,8 @@ public class CourseModelTest {
     }
 
     @Test
+
+
     public void testTitleOnlyConstructor() {
         CourseModel course = new CourseModel("Java Basics");
         assertEquals("Java Basics", course.getTitle());
