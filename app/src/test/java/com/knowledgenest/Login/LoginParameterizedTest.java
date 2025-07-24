@@ -5,7 +5,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 public class LoginParameterizedTest {
 
-
     // Simulates email validation in SignInActivity and SignUpActivity
     @ParameterizedTest(name = "Email validation: ''{0}'' should be valid? {1}")
     @CsvSource({
