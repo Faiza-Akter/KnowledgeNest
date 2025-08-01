@@ -12,7 +12,7 @@ public class PlayListModel {
     public PlayListModel() {
 
     }
-
+    
     public String getTitle() {
         return title;
     }

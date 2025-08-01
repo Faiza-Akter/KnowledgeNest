@@ -3,6 +3,7 @@ agp = "8.9.2"
 chipNavigationBar = "1.4.0"
 circleimageview = "3.1.0"
 exoplayer = "2.19.1"
+exoplayerCommon = "2.14.1"
 exoplayerVersion = "2.18.2"
 firebaseAnalytics = "22.4.0"
 firebaseAuthVersion = "22.1.1"
@@ -12,11 +13,14 @@ firebaseMessaging = "24.1.1"
 firebaseStorageVersion = "20.3.0"
 googleApiClientAndroid = "1.30.10"
 googleApiServicesDrive = "v3-rev197-1.25.0"
+jetbrainsKotlinStdlib = "2.1.10"
 junit = "4.13.2"
+junitJupiterEngine = "5.8.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 kotlinStdlib = "2.1.0"
+kotlinStdlibVersion = "1.4.0"
 kotlinxCoroutinesAndroid = "1.7.3"
 material = "1.12.0"
 activity = "1.10.1"
@@ -37,6 +41,7 @@ chip-navigation-bar = { module = "com.github.ismaeldivita:chip-navigation-bar", 
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 exoplayer = { module = "com.google.android.exoplayer:exoplayer", version.ref = "exoplayer" }
 exoplayer-common = { module = "com.google.android.exoplayer:exoplayer-common", version.ref = "exoplayer" }
+exoplayer-common-v2141 = { module = "com.google.android.exoplayer:exoplayer-common", version.ref = "exoplayerCommon" }
 exoplayer2-exoplayer = { module = "com.google.android.exoplayer2:exoplayer", version.ref = "exoplayerVersion" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-auth-v2211 = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuthVersion" }
@@ -50,7 +55,11 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterEngine" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterEngine" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlib" }
+kotlin-stdlib-v140 = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlibVersion" }
+kotlin-stdlib-v2110 = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "jetbrainsKotlinStdlib" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
