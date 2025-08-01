@@ -1,8 +1,7 @@
-package com.knowledgenest;
+package com.knowledgenest.Model;
 
 
 
-import com.knowledgenest.Model.CourseModel;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
