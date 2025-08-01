@@ -1,7 +1,14 @@
 package com.knowledgenest.Login;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.stream.Stream;
 
 public class LoginParameterizedTest {
 
@@ -23,30 +30,29 @@ public class LoginParameterizedTest {
     }
 
 
-    // Simulates password validation in SignInActivity and SignUpActivity
-    @ParameterizedTest(name = "Password validation: ''{0}'' should be valid? {1}")
-    @CsvSource({
-            "'', false",
-            "123, false",
-            "abcdef, true",
-            "123456, true",
-            "abc12, false"
-    })
-    void testPasswordValidation(String password, boolean expectedValid) {
+    //  Value Source - Passwords
+    @ParameterizedTest(name = "Valid password: {0}")
+    @ValueSource(strings = {"abcdef", "123456", "mypassword"})
+    void testPasswordLengthShouldBeValid(String password) {
         boolean isValid = password != null && password.length() >= 6;
-        System.out.println("Password: " + password + " => Valid: " + isValid);
+        assertEquals(true, isValid);
     }
 
-    // Simulates name field validation in SignUpActivity
-    @ParameterizedTest(name = "Name validation: ''{0}'' should be valid? {1}")
-    @CsvSource({
-            "'', false",
-            "A, true",
-            "Alice, true"
-    })
+    //  Method Source - name validation
+    @ParameterizedTest(name = "Name validation: {0} should be valid? {1}")
+    @MethodSource("provideNamesForValidation")
     void testNameValidation(String name, boolean expectedValid) {
         boolean isValid = name != null && !name.isEmpty();
-        System.out.println("Name: " + name + " => Valid: " + isValid);
+        assertEquals(expectedValid, isValid);
+    }
+
+    static Stream<Arguments> provideNamesForValidation() {
+        return Stream.of(
+                Arguments.of("", false),
+                Arguments.of("Alice", true),
+                Arguments.of("A", true),
+                Arguments.of(null, false)
+        );
     }
 
     // Simulates forget password email validation
