@@ -54,6 +54,7 @@ public class ForgetPasswordActivity extends AppCompatActivity {
         });
 
         // Fix for login TextView click issue
+        //sets a click listener on the "login" textview
         binding.login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
