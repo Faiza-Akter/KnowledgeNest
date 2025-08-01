@@ -1,15 +1,10 @@
 package com.knowledgenest.Model;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvFileSource;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.*;
 
 import java.util.stream.Stream;
 
@@ -54,6 +49,24 @@ public class ModelParameterizedTest {
         return Stream.of("4.5", "3.0", "5.0");
     }
 
+    @ParameterizedTest
+    @CsvFileSource(resources = "/course_data.csv", numLinesToSkip = 1)
+    @DisplayName("Test CourseModel using CsvFileSource")
+    void testCourseModelFromCSV(String title, String duration, String rating, String description, long price,
+                                String thumbnail, String introvideo, String postedBy, String enable) {
+        CourseModel course = new CourseModel(title, duration, rating, description, price, thumbnail, introvideo, postedBy, enable);
+
+        assertEquals(title, course.getTitle());
+        assertEquals(duration, course.getDuration());
+        assertEquals(rating, course.getRating());
+        assertEquals(description, course.getDescription());
+        assertEquals(price, course.getPrice());
+        assertEquals(thumbnail, course.getThumbnail());
+        assertEquals(introvideo, course.getIntrovideo());
+        assertEquals(postedBy, course.getPostedBy());
+        assertEquals(enable, course.getEnable());
+    }
+
     // ========== PlayListModel Tests ==========
 
     @ParameterizedTest
@@ -77,6 +90,22 @@ public class ModelParameterizedTest {
         PlayListModel model = new PlayListModel();
         model.setEnabled(enabled);
         assertEquals(enabled, model.getEnabled());
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/playlist_data.csv", numLinesToSkip = 1)
+    @DisplayName("Test PlayListModel using CsvFileSource")
+    void testPlayListModelFromCSV(String title, String videoUrl, String enabled, String key) {
+        PlayListModel model = new PlayListModel();
+        model.setTitle(title);
+        model.setVideoUrl(videoUrl);
+        model.setEnabled(enabled);
+        model.setKey(key);
+
+        assertEquals(title, model.getTitle());
+        assertEquals(videoUrl, model.getVideoUrl());
+        assertEquals(enabled, model.getEnabled());
+        assertEquals(key, model.getKey());
     }
 
     // ========== UserModel Tests ==========
@@ -120,5 +149,17 @@ public class ModelParameterizedTest {
                 "http://mycdn.com/profile.png",
                 ""
         );
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(resources = "/user_data.csv", numLinesToSkip = 1)
+    @DisplayName("Test UserModel using CsvFileSource")
+    void testUserModelFromCSV(String name, String email, String password, String profile) {
+        UserModel user = new UserModel(name, email, password, profile);
+
+        assertEquals(name, user.getName());
+        assertEquals(email, user.getEmail());
+        assertEquals(password, user.getPassword());
+        assertEquals(profile, user.getProfile());
     }
 }
