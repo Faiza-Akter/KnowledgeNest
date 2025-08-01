@@ -1,0 +1,3 @@
+title,duration,rating,description,price,thumbnail,introvideo,postedBy,enable
+Python,5h,4.7,Learn Python,999,thumb.jpg,intro.mp4,admin,true
+Java,6h,4.5,Object Oriented Programming,799,java.jpg,java_intro.mp4,admin,false
