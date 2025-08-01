@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -65,5 +66,12 @@ public class LoginParameterizedTest {
     void testForgetPasswordEmailValidation(String email, boolean expectedValid) {
         boolean isValid = email != null && !email.isEmpty();
         System.out.println("ForgetPassword Email: " + email + " => Valid: " + isValid);
+    }
+    @ParameterizedTest(name = "Email validation: ''{0}'' should be valid? {1}")
+    @CsvFileSource(resources = "/email_validation.csv", numLinesToSkip = 0)
+    void testEmailValidationWithCsvFile(String email, boolean expectedValid) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        boolean isValid = email != null && !email.isEmpty() && email.matches(emailRegex);
+        assertEquals(expectedValid, isValid);
     }
 }
