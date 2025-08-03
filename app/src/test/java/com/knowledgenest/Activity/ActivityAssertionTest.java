@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ActivityAssertionTest {
     //MainActivity Logic Tests
-
     @Test
     void testToolbarTitleSwitch() {
         int HOME = 101;
@@ -53,7 +52,7 @@ public class ActivityAssertionTest {
 
     @Test
     void testDurationFormat() {
-        String dur1 = "3h";
+        String dur1 = "8h";
         String dur2 = "45min";
         String dur3 = "1.5h";
         String dur4 = "2";
@@ -67,7 +66,6 @@ public class ActivityAssertionTest {
 
 
     //SplashScreenActivity Logic
-
     @Test
     void testSplashDelayThreshold() {
         int delay = 1500;
@@ -82,7 +80,6 @@ public class ActivityAssertionTest {
         String title2 = "";
         String title3 = null;
         String title4 = "   ";
-
         assertTrue(title1 != null && !title1.trim().isEmpty());
         assertFalse(title2 != null && !title2.trim().isEmpty());
         assertFalse(title3 != null && !title3.trim().isEmpty());
