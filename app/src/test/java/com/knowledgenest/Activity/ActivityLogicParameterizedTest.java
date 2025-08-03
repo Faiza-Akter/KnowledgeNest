@@ -3,13 +3,35 @@ package com.knowledgenest.Activity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.*;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
 import java.util.stream.Stream;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ActivityLogicParameterizedTest {
+
+    @BeforeAll
+    void beforeAllTests() {
+        System.out.println(" [BEFORE ALL] Starting ActivityLogicParameterizedTest...");
+    }
+
+    @BeforeEach
+    void beforeEachTest() {
+        System.out.println(" [BEFORE EACH] Running a test case...");
+    }
+
+    @AfterEach
+    void afterEachTest() {
+        System.out.println(" [AFTER EACH] Test case completed.\n");
+    }
+
+    @AfterAll
+    void afterAllTests() {
+        System.out.println(" [AFTER ALL] All tests finished for ActivityLogicParameterizedTest.");
+    }
 
     // ===== PlayListActivity: Test Description Logic =====
     @ParameterizedTest
@@ -19,7 +41,6 @@ public class ActivityLogicParameterizedTest {
             "'', false",
             "'Learn Java', true"
     })
-    @DisplayName("PlayListActivity: Validate Course Description Input")
     void testCourseDescription(String description, boolean expectedValid) {
         boolean isValid = description != null && !description.trim().isEmpty();
         assertEquals(expectedValid, isValid);
@@ -28,7 +49,6 @@ public class ActivityLogicParameterizedTest {
     // ===== PlayListActivity: Test Price Formatting Logic =====
     @ParameterizedTest
     @ValueSource(longs = {0, 999, 1500, 10})
-    @DisplayName("PlayListActivity: Format Price to String")
     void testPriceFormat(long price) {
         String formatted = String.valueOf(price);
         assertTrue(formatted.matches("\\d+")); // only digits expected
@@ -46,7 +66,6 @@ public class ActivityLogicParameterizedTest {
             "101, KnowledgeNest",
             "102, Profile"
     })
-    @DisplayName("MainActivity: Toolbar Title Logic")
     void testToolbarTitleChange(int selectedId, String expectedTitle) {
         String title;
         if (selectedId == DummyIds.HOME) {
@@ -66,7 +85,6 @@ public class ActivityLogicParameterizedTest {
             "'', false",
             "'   ', false"
     })
-    @DisplayName("PlayListActivity: Title field intent check")
     void testIntentTitleField(String title, boolean expectedValid) {
         boolean isValid = title != null && !title.trim().isEmpty();
         assertEquals(expectedValid, isValid);
@@ -75,7 +93,6 @@ public class ActivityLogicParameterizedTest {
     // ===== SplashScreenActivity: Delay logic =====
     @ParameterizedTest
     @ValueSource(ints = {1000, 1500, 2000})
-    @DisplayName("SplashScreenActivity: Delay should be >= 1000ms")
     void testSplashDelayTiming(int delayMillis) {
         assertTrue(delayMillis >= 1000);
     }
@@ -83,7 +100,6 @@ public class ActivityLogicParameterizedTest {
     // ===== PlayListActivity: Duration Format Test =====
     @ParameterizedTest
     @MethodSource("durationProvider")
-    @DisplayName("PlayListActivity: Duration Format")
     void testDurationFormat(String duration) {
         boolean valid = duration.endsWith("h") || duration.endsWith("min");
         assertTrue(valid);

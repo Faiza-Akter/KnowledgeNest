@@ -2,7 +2,10 @@ package com.knowledgenest.Model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
@@ -10,11 +13,31 @@ import java.util.stream.Stream;
 
 public class ModelParameterizedTest {
 
+    @BeforeAll
+    static void beforeAllTests() {
+        System.out.println(" [BEFORE ALL] Starting ModelParameterizedTest class...");
+    }
+
+    @BeforeEach
+    void beforeEachTest() {
+        System.out.println(" [BEFORE EACH] Starting a new test case...");
+    }
+
+    @AfterEach
+    void afterEachTest() {
+        System.out.println(" [AFTER EACH] Finished test case.\n");
+    }
+
+    @AfterAll
+    static void afterAllTests() {
+        System.out.println(" [AFTER ALL] All tests completed for ModelParameterizedTest.");
+    }
+
+
     // ========== CourseModel Tests ==========
 
     @ParameterizedTest
     @ValueSource(strings = {"Java Basics", "Kotlin Advanced", "Android Dev"})
-    @DisplayName("Test CourseModel Title Setter and Getter")
     void testCourseTitle(String title) {
         CourseModel course = new CourseModel();
         course.setTitle(title);
@@ -27,7 +50,6 @@ public class ModelParameterizedTest {
             "Advanced Android, 1000",
             "ML with Python, 1200"
     })
-    @DisplayName("Test CourseModel Title & Price")
     void testCourseTitleAndPrice(String title, long price) {
         CourseModel course = new CourseModel();
         course.setTitle(title);
@@ -38,7 +60,6 @@ public class ModelParameterizedTest {
 
     @ParameterizedTest
     @MethodSource("courseRatingProvider")
-    @DisplayName("Test valid rating strings in CourseModel")
     void testCourseRating(String rating) {
         CourseModel course = new CourseModel();
         course.setRating(rating);
@@ -51,7 +72,6 @@ public class ModelParameterizedTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "/course_data.csv", numLinesToSkip = 1)
-    @DisplayName("Test CourseModel using CsvFileSource")
     void testCourseModelFromCSV(String title, String duration, String rating, String description, long price,
                                 String thumbnail, String introvideo, String postedBy, String enable) {
         CourseModel course = new CourseModel(title, duration, rating, description, price, thumbnail, introvideo, postedBy, enable);
@@ -74,7 +94,6 @@ public class ModelParameterizedTest {
             "Intro Lesson, https://video.com/intro.mp4",
             "Lecture 1, http://example.com/lec1.mp4"
     })
-    @DisplayName("Test PlayListModel Title and Video URL")
     void testPlayListModelTitleAndUrl(String title, String url) {
         PlayListModel playlist = new PlayListModel();
         playlist.setTitle(title);
@@ -85,7 +104,6 @@ public class ModelParameterizedTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"true", "false"})
-    @DisplayName("Test PlayListModel Enabled Flag")
     void testPlaylistEnabled(String enabled) {
         PlayListModel model = new PlayListModel();
         model.setEnabled(enabled);
@@ -94,7 +112,6 @@ public class ModelParameterizedTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "/playlist_data.csv", numLinesToSkip = 1)
-    @DisplayName("Test PlayListModel using CsvFileSource")
     void testPlayListModelFromCSV(String title, String videoUrl, String enabled, String key) {
         PlayListModel model = new PlayListModel();
         model.setTitle(title);
@@ -116,7 +133,6 @@ public class ModelParameterizedTest {
             "Bob, bob@mail.com",
             "'', ''"
     })
-    @DisplayName("Test UserModel Name and Email")
     void testUserModelNameEmail(String name, String email) {
         UserModel user = new UserModel();
         user.setName(name);
@@ -127,7 +143,6 @@ public class ModelParameterizedTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"password123", "secret", "admin1234"})
-    @DisplayName("Test UserModel Password")
     void testUserPassword(String password) {
         UserModel user = new UserModel();
         user.setPassword(password);
@@ -136,7 +151,6 @@ public class ModelParameterizedTest {
 
     @ParameterizedTest
     @MethodSource("profileUrlProvider")
-    @DisplayName("Test UserModel Profile Image URLs")
     void testUserProfile(String profileUrl) {
         UserModel user = new UserModel();
         user.setProfile(profileUrl);
@@ -153,7 +167,6 @@ public class ModelParameterizedTest {
 
     @ParameterizedTest
     @CsvFileSource(resources = "/user_data.csv", numLinesToSkip = 1)
-    @DisplayName("Test UserModel using CsvFileSource")
     void testUserModelFromCSV(String name, String email, String password, String profile) {
         UserModel user = new UserModel(name, email, password, profile);
 
