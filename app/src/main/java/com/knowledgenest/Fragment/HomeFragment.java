@@ -38,9 +38,9 @@ public class HomeFragment extends Fragment {
     private CourseAdapter adapter;
 
     public HomeFragment() {
-
-        // Required empty public constructor
+          // Required empty public constructor
     }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

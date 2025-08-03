@@ -1,0 +1,5 @@
+user@example.com,true
+invalidEmail,false
+,false
+user@domain,false
+user@domain.com,true

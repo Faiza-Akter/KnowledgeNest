@@ -86,4 +86,11 @@ public class LoginParameterizedTest {
         boolean isValid = email != null && !email.isEmpty() && email.matches(emailRegex);
         assertEquals(expectedValid, isValid);
     }
+    @ParameterizedTest(name = "Email validation: ''{0}'' should be valid? {1}")
+    @CsvFileSource(resources = "/email_validation.csv", numLinesToSkip = 0)
+    void testEmailValidationWithCsvFile(String email, boolean expectedValid) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        boolean isValid = email != null && !email.isEmpty() && email.matches(emailRegex);
+        assertEquals(expectedValid, isValid);
+    }
 }
