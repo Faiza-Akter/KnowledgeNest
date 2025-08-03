@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ActivityAssertionTest {
-    //MainActivity Logic Tests
+    // MainActivity Logic Tests
     @Test
     void testToolbarTitleSwitch() {
         int HOME = 101;
