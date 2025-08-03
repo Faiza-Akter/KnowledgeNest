@@ -25,3 +25,4 @@ public class LoginService {
         return password != null && password.length() >= 6;
     }
 }
+
