@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 
 public class ActivityLogicParameterizedTest {
 
-
     // ===== PlayListActivity: Test Description Logic =====
     @ParameterizedTest
     @CsvSource({
