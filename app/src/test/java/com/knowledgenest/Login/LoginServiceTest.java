@@ -80,6 +80,7 @@ public class LoginServiceTest {
     }
 
     //  Test signup triggers Firebase call
+    //createUserWithEmailAndPassword with the provided email and password.
     @Test
     void testSignupFirebaseCall() {
         when(firebaseAuth.createUserWithEmailAndPassword("test@example.com", "123456"))
