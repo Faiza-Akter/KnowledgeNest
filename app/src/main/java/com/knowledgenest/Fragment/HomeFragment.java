@@ -38,6 +38,7 @@ public class HomeFragment extends Fragment {
     private CourseAdapter adapter;
 
     public HomeFragment() {
+
         // Required empty public constructor
     }
 
