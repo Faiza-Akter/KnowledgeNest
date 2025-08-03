@@ -11,11 +11,6 @@ import java.util.stream.Stream;
 
 public class ActivityLogicParameterizedTest {
 
-    // Dummy replacement for R.id values (used in MainActivity)
-    static class DummyIds {
-        static final int HOME = 101;
-        static final int PROFILE = 102;
-    }
 
     // ===== PlayListActivity: Test Description Logic =====
     @ParameterizedTest
@@ -41,10 +36,16 @@ public class ActivityLogicParameterizedTest {
     }
 
     // ===== MainActivity: Fragment Switch Logic Testing =====
+
+    static class DummyIds {
+        static final int HOME = 101;
+        static final int PROFILE = 102;
+    }
+
     @ParameterizedTest
     @CsvSource({
-            "101, KnowledgeNest",   // DummyIds.HOME
-            "102, Profile"          // DummyIds.PROFILE
+            "101, KnowledgeNest",
+            "102, Profile"
     })
     @DisplayName("MainActivity: Toolbar Title Logic")
     void testToolbarTitleChange(int selectedId, String expectedTitle) {
