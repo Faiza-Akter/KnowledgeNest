@@ -50,15 +50,19 @@ public class LoginParameterizedTest {
     void testEmailValidation(String email, boolean expectedValid) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
         boolean isValid = email != null && !email.isEmpty() && email.matches(emailRegex);
+
+        assertEquals(expectedValid, isValid, "Email validation mismatch for: " + email);
         System.out.println("Email: " + email + " => Valid: " + isValid);
+
     }
+
 
     // ValueSource - Passwords
     @ParameterizedTest
     @ValueSource(strings = {"abcdef", "123456", "mypassword"})
     void testPasswordLengthShouldBeValid(String password) {
         boolean isValid = password != null && password.length() >= 6;
-        assertEquals(true, isValid);
+        assertEquals(true, isValid,"Password is too short");
     }
 
     // MethodSource - name validation
@@ -66,7 +70,7 @@ public class LoginParameterizedTest {
     @MethodSource("provideNamesForValidation")
     void testNameValidation(String name, boolean expectedValid) {
         boolean isValid = name != null && !name.isEmpty();
-        assertEquals(expectedValid, isValid);
+        assertEquals(expectedValid, isValid,"Should not be null or empty");
     }
 
     static Stream<Arguments> provideNamesForValidation() {
@@ -86,11 +90,5 @@ public class LoginParameterizedTest {
         boolean isValid = email != null && !email.isEmpty() && email.matches(emailRegex);
         assertEquals(expectedValid, isValid);
     }
-    @ParameterizedTest(name = "Email validation: ''{0}'' should be valid? {1}")
-    @CsvFileSource(resources = "/email_validation.csv", numLinesToSkip = 0)
-    void testEmailValidationWithCsvFile(String email, boolean expectedValid) {
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
-        boolean isValid = email != null && !email.isEmpty() && email.matches(emailRegex);
-        assertEquals(expectedValid, isValid);
-    }
+
 }
