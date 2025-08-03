@@ -20,7 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
-import com.knowledgenest.MainActivity;
+import com.knowledgenest.Activity.MainActivity;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivitySignInBinding;
 

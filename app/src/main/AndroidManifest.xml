@@ -25,7 +25,7 @@
 
         <!-- Splash Screen is now the launcher -->
         <activity
-            android:name=".SplashScreenActivity"
+            android:name=".Activity.SplashScreenActivity"
             android:exported="true"
             android:label="@string/label_splash_screen">
             <intent-filter>
@@ -50,12 +50,12 @@
 
         <!-- Main content activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".Activity.MainActivity"
             android:exported="true"
             android:label="@string/label_main_activity" />
 
         <activity
-            android:name=".PlayListActivity"
+            android:name=".Activity.PlayListActivity"
             android:exported="false" />
 
     </application>

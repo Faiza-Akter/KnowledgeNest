@@ -1,6 +1,4 @@
-package com.knowledgenest;
-
-import static com.knowledgenest.R.layout.activity_main;
+package com.knowledgenest.Activity;
 
 import android.os.Bundle;
 import android.view.Window;
@@ -18,6 +16,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 import com.knowledgenest.Fragment.HomeFragment;
 import com.knowledgenest.Fragment.ProfileFragment;
+import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {

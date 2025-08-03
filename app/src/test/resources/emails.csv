@@ -1,0 +1,6 @@
+email,expectedValid
+user@example.com,true
+invalid-email,false
+,false
+test@gmail,false
+admin@domain.com,true
