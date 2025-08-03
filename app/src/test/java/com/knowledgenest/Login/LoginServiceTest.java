@@ -40,7 +40,7 @@ public class LoginServiceTest {
         signUpService = new SignUpService(firebaseAuth);
     }
 
-    // ✅ Parameterized email validation
+    //  Parameterized email validation
     @ParameterizedTest
     @CsvSource({
             "user@example.com, true",
@@ -54,7 +54,7 @@ public class LoginServiceTest {
         assert result == expectedValid;
     }
 
-    // ✅ Parameterized password validation
+    //  Parameterized password validation
     @ParameterizedTest
     @CsvSource({
             "123456, true",
@@ -67,7 +67,7 @@ public class LoginServiceTest {
         assert result == expectedValid;
     }
 
-    // ✅ Test login triggers Firebase call
+    // Test login triggers Firebase call
     @Test
     void testLoginFirebaseCall() {
         when(firebaseAuth.signInWithEmailAndPassword("test@example.com", "123456"))
@@ -79,7 +79,7 @@ public class LoginServiceTest {
         verify(mockTask).addOnCompleteListener(mockListener);
     }
 
-    // ✅ Test signup triggers Firebase call
+    //  Test signup triggers Firebase call
     @Test
     void testSignupFirebaseCall() {
         when(firebaseAuth.createUserWithEmailAndPassword("test@example.com", "123456"))
