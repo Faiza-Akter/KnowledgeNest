@@ -5,8 +5,30 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ActivityAssertionTest {
+    //MainActivity Logic Tests
 
-    // ===== PlayListActivity Logic Tests =====
+    @Test
+    void testToolbarTitleSwitch() {
+        int HOME = 101;
+        int PROFILE = 102;
+        int OTHER = 999;
+
+        String title1 = getToolbarTitle(HOME);
+        String title2 = getToolbarTitle(PROFILE);
+        String title3 = getToolbarTitle(OTHER);
+
+        assertEquals("KnowledgeNest", title1);
+        assertEquals("Profile", title2);
+        assertEquals("Unknown", title3);
+    }
+
+    private String getToolbarTitle(int selectedId) {
+        if (selectedId == 101) return "KnowledgeNest";
+        else if (selectedId == 102) return "Profile";
+        else return "Unknown";
+    }
+
+    //PlayListActivity Logic Tests
 
     @Test
     void testDescriptionValidation() {
@@ -42,30 +64,9 @@ public class ActivityAssertionTest {
         assertFalse(dur4.endsWith("h") || dur4.endsWith("min"));
     }
 
-    // ===== MainActivity Logic Tests =====
 
-    @Test
-    void testToolbarTitleSwitch() {
-        int HOME = 101;
-        int PROFILE = 102;
-        int OTHER = 999;
 
-        String title1 = getToolbarTitle(HOME);
-        String title2 = getToolbarTitle(PROFILE);
-        String title3 = getToolbarTitle(OTHER);
-
-        assertEquals("KnowledgeNest", title1);
-        assertEquals("Profile", title2);
-        assertEquals("Unknown", title3);
-    }
-
-    private String getToolbarTitle(int selectedId) {
-        if (selectedId == 101) return "KnowledgeNest";
-        else if (selectedId == 102) return "Profile";
-        else return "Unknown";
-    }
-
-    // ===== SplashScreenActivity Logic =====
+    //SplashScreenActivity Logic
 
     @Test
     void testSplashDelayThreshold() {
@@ -73,7 +74,7 @@ public class ActivityAssertionTest {
         assertTrue(delay >= 1000);
     }
 
-    // ===== Intent Extras Check (PlayListActivity) =====
+    //Intent Extras Check (PlayListActivity)
 
     @Test
     void testIntentTitleCheck() {
