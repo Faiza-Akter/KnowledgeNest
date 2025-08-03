@@ -2,6 +2,10 @@ package com.knowledgenest.Login;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -13,8 +17,29 @@ import java.util.stream.Stream;
 
 public class LoginParameterizedTest {
 
+    @BeforeAll
+    static void beforeAllTests() {
+        System.out.println(" [BEFORE ALL] Starting ModelParameterizedTest class...");
+    }
+
+    @BeforeEach
+    void beforeEachTest() {
+        System.out.println(" [BEFORE EACH] Starting a new test case...");
+    }
+
+    @AfterEach
+    void afterEachTest() {
+        System.out.println(" [AFTER EACH] Finished test case.\n");
+    }
+
+    @AfterAll
+    static void afterAllTests() {
+        System.out.println(" [AFTER ALL] All tests completed for ModelParameterizedTest.");
+    }
+
+
     // Simulates email validation in SignInActivity and SignUpActivity
-    @ParameterizedTest(name = "Email validation: ''{0}'' should be valid? {1}")
+    @ParameterizedTest
     @CsvSource({
             "user@example.com, true",
             "invalidEmail, false",
@@ -23,24 +48,21 @@ public class LoginParameterizedTest {
             "user@domain.com, true"
     })
     void testEmailValidation(String email, boolean expectedValid) {
-
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
         boolean isValid = email != null && !email.isEmpty() && email.matches(emailRegex);
-
         System.out.println("Email: " + email + " => Valid: " + isValid);
     }
 
-
-    //  Value Source - Passwords
-    @ParameterizedTest(name = "Valid password: {0}")
+    // ValueSource - Passwords
+    @ParameterizedTest
     @ValueSource(strings = {"abcdef", "123456", "mypassword"})
     void testPasswordLengthShouldBeValid(String password) {
         boolean isValid = password != null && password.length() >= 6;
         assertEquals(true, isValid);
     }
 
-    //  Method Source - name validation
-    @ParameterizedTest(name = "Name validation: {0} should be valid? {1}")
+    // MethodSource - name validation
+    @ParameterizedTest
     @MethodSource("provideNamesForValidation")
     void testNameValidation(String name, boolean expectedValid) {
         boolean isValid = name != null && !name.isEmpty();
@@ -56,8 +78,8 @@ public class LoginParameterizedTest {
         );
     }
 
-    //CSV File Source - Forget Password email (file should be in src/test/resources/emails.csv)
-    @ParameterizedTest(name = "Forget Password email: {0} expected valid? {1}")
+    // CsvFileSource - Forget Password email (file should be in src/test/resources/emails.csv)
+    @ParameterizedTest
     @CsvFileSource(resources = "/emails.csv", numLinesToSkip = 1)
     void testForgetPasswordEmailValidation(String email, boolean expectedValid) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
