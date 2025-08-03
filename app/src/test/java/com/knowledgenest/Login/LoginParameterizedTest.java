@@ -38,7 +38,7 @@ public class LoginParameterizedTest {
     }
 
 
-    // Simulates email validation in SignInActivity and SignUpActivity
+    // Email validation in SignInActivity and SignUpActivity
     @ParameterizedTest
     @CsvSource({
             "user@example.com, true",
