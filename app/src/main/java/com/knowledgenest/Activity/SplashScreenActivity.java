@@ -1,4 +1,4 @@
-package com.knowledgenest;
+package com.knowledgenest.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.knowledgenest.Login.SignInActivity;
+import com.knowledgenest.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
 

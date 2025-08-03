@@ -18,7 +18,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.knowledgenest.Model.CourseModel;
 import com.knowledgenest.Model.UserModel;
-import com.knowledgenest.PlayListActivity;
+import com.knowledgenest.Activity.PlayListActivity;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.RvCourseDesignBinding;
 import com.squareup.picasso.Callback;

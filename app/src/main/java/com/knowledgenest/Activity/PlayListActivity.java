@@ -1,4 +1,4 @@
-package com.knowledgenest;
+package com.knowledgenest.Activity;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -18,13 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.knowledgenest.Adapter.PlayListAdapter;
 import com.knowledgenest.Model.PlayListModel;
+import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivityPlayListBinding;
 
 import java.util.ArrayList;
