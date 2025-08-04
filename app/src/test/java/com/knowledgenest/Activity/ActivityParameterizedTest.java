@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.*;
 import java.util.stream.Stream;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ActivityLogicParameterizedTest {
+public class ActivityParameterizedTest {
 
     @BeforeAll
     void beforeAllTests() {
