@@ -9,27 +9,21 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Patterns;
-import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.knowledgenest.Activity.MainActivity;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivitySignInBinding;
 
 public class SignInActivity extends AppCompatActivity {
 
-    ActivitySignInBinding binding;
-    FirebaseAuth auth;
-    FirebaseDatabase database;
-    Dialog loadingDialog;
+    private ActivitySignInBinding binding;
+    private Dialog loadingDialog;
+    private AuthManager authManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +31,6 @@ public class SignInActivity extends AppCompatActivity {
         binding = ActivitySignInBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-
-        // Setup loading dialog
         loadingDialog = new Dialog(this);
         loadingDialog.setContentView(R.layout.loading_dialog);
         if (loadingDialog.getWindow() != null) {
@@ -48,90 +38,76 @@ public class SignInActivity extends AppCompatActivity {
             loadingDialog.setCancelable(false);
         }
 
-        binding.btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = binding.edtEmail.getText().toString().trim();
-                String password = binding.edtPassword.getText().toString().trim();
+        authManager = AuthManager.getInstance();
+        authManager.setLoginStrategy(new LoginStrategy(authManager.getAuth()));
 
-                if (email.isEmpty()) {
-                    binding.edtEmail.setError("Enter your email");
-                    binding.edtEmail.requestFocus();
-                } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    binding.edtEmail.setError("Enter a valid email");
-                    binding.edtEmail.requestFocus();
-                } else if (password.isEmpty()) {
-                    binding.edtPassword.setError("Enter your password");
-                    binding.edtPassword.requestFocus();
-                } else if (password.length() < 6) {
-                    binding.edtPassword.setError("Password must be at least 6 characters");
-                    binding.edtPassword.requestFocus();
-                } else {
-                    if (!isNetworkAvailable()) {
-                        Toast.makeText(SignInActivity.this,
-                                "No internet connection",
-                                Toast.LENGTH_SHORT).show();
-                        return;
+        binding.btnSignIn.setOnClickListener(v -> {
+            String email = binding.edtEmail.getText().toString().trim();
+            String password = binding.edtPassword.getText().toString().trim();
+
+            if (!validateInputs(email, password)) return;
+            if (!isNetworkAvailable()) {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            loadingDialog.show();
+            authManager.executeLogin(email, password, task -> {
+                loadingDialog.dismiss();
+                if (task.isSuccessful()) {
+                    if (authManager.getAuth().getCurrentUser().isEmailVerified()) {
+                        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Please verify your email first", Toast.LENGTH_LONG).show();
+                        authManager.getAuth().signOut();
                     }
-                    signIn(email, password);
+                } else {
+                    Toast.makeText(this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }
+            });
         });
 
-        binding.createAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
-                finish();
-            }
+        binding.createAccount.setOnClickListener(v -> {
+            startActivity(new Intent(this, SignUpActivity.class));
+            finish();
         });
 
-        binding.forgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SignInActivity.this, ForgetPasswordActivity.class));
-            }
+        binding.forgotPassword.setOnClickListener(v -> {
+            startActivity(new Intent(this, ForgetPasswordActivity.class));
         });
 
-        // Auto-login if already verified
-        if (auth.getCurrentUser() != null && auth.getCurrentUser().isEmailVerified()) {
-            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+        if (authManager.getAuth().getCurrentUser() != null &&
+                authManager.getAuth().getCurrentUser().isEmailVerified()) {
+            startActivity(new Intent(this, MainActivity.class));
             finish();
         }
+    }
+
+    private boolean validateInputs(String email, String password) {
+        if (email.isEmpty()) {
+            binding.edtEmail.setError("Enter your email");
+            binding.edtEmail.requestFocus();
+            return false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.edtEmail.setError("Enter a valid email");
+            binding.edtEmail.requestFocus();
+            return false;
+        } else if (password.isEmpty()) {
+            binding.edtPassword.setError("Enter your password");
+            binding.edtPassword.requestFocus();
+            return false;
+        } else if (password.length() < 6) {
+            binding.edtPassword.setError("Password must be at least 6 characters");
+            binding.edtPassword.requestFocus();
+            return false;
+        }
+        return true;
     }
 
     private boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
-    }
-
-    private void signIn(String email, String password) {
-        loadingDialog.show();
-
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            if (auth.getCurrentUser().isEmailVerified()) {
-                                loadingDialog.dismiss();
-                                startActivity(new Intent(SignInActivity.this, MainActivity.class));
-                                finish();
-                            } else {
-                                loadingDialog.dismiss();
-                                Toast.makeText(SignInActivity.this,
-                                        "Please verify your email first. Check your inbox.",
-                                        Toast.LENGTH_LONG).show();
-                                auth.signOut();
-                            }
-                        } else {
-                            loadingDialog.dismiss();
-                            Toast.makeText(SignInActivity.this,
-                                    "Login failed: " + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
     }
 }
