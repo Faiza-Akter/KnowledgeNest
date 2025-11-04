@@ -1,6 +1,5 @@
 package com.knowledgenest.Adapter;
 
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,20 +8,21 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.knowledgenest.Model.PlayListModel;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.RvPlaylistDesignBinding;
 
 import java.util.ArrayList;
+import java.util.List;
 
-//Pushing PlaylistAdapter
-public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.viewHolder> {
-    Context context;
-    ArrayList<PlayListModel>list;
-    videoListener listener;
+// ✅ PlayListAdapter using Composite Pattern (Module → Lesson)
+public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHolder> {
 
-    public PlayListAdapter(Context context, ArrayList<PlayListModel> list, videoListener listener) {
+    private final Context context;
+    private final ArrayList<PlayListModel> list;
+    private final VideoListener listener;
+
+    public PlayListAdapter(Context context, ArrayList<PlayListModel> list, VideoListener listener) {
         this.context = context;
         this.list = list;
         this.listener = listener;
@@ -30,44 +30,100 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.viewHo
 
     @NonNull
     @Override
-    public viewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(context).inflate(R.layout.rv_playlist_design,parent,false);
-        return new viewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.rv_playlist_design, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull viewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         PlayListModel model = list.get(position);
-
-
-        holder.binding.title.setText(model.getTitle());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onClick(position,list.get(position).getKey(), model.getVideoUrl(),list.size() );
-            }
-        });
-
-
+        holder.bind(model, position);
     }
-
 
     @Override
     public int getItemCount() {
         return list.size();
     }
 
-    public class viewHolder extends RecyclerView.ViewHolder {
-        RvPlaylistDesignBinding binding;  // <-- declare binding here
+    // ---------------------------------------------------------------------
+    // ✅ ViewHolder
+    // ---------------------------------------------------------------------
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        RvPlaylistDesignBinding binding;
 
-        public viewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            binding = RvPlaylistDesignBinding.bind(itemView);  // <-- now it works
+            binding = RvPlaylistDesignBinding.bind(itemView);
+        }
+
+        public void bind(PlayListModel model, int position) {
+            binding.title.setText(model.getTitle());
+
+            // Example composite: one module may contain multiple lessons
+            Lesson lesson = new Lesson(model.getTitle(), model.getVideoUrl());
+            Module module = new Module("Module " + (position + 1));
+            module.add(lesson);
+
+            // Show hierarchy in logs (or later on UI)
+            module.showContent();
+
+            itemView.setOnClickListener(view ->
+                    listener.onClick(position, model.getKey(), model.getVideoUrl(), list.size()));
         }
     }
-    public interface videoListener{
-        public void onClick(int position,String key,String videoUrl,int size);
+
+    // ---------------------------------------------------------------------
+    // ✅ Composite Pattern Implementation (inside same file)
+    // ---------------------------------------------------------------------
+
+    // Component Interface
+    interface ContentComponent {
+        void showContent();
     }
 
+    // Leaf - Lesson
+    static class Lesson implements ContentComponent {
+        private final String title;
+        private final String videoUrl;
 
+        public Lesson(String title, String videoUrl) {
+            this.title = title;
+            this.videoUrl = videoUrl;
+        }
+
+        @Override
+        public void showContent() {
+            System.out.println("   Lesson: " + title + " (" + videoUrl + ")");
+        }
+    }
+
+    // Composite - Module (can hold multiple lessons)
+    static class Module implements ContentComponent {
+        private final String moduleName;
+        private final List<ContentComponent> components = new ArrayList<>();
+
+        public Module(String moduleName) {
+            this.moduleName = moduleName;
+        }
+
+        public void add(ContentComponent component) {
+            components.add(component);
+        }
+
+        @Override
+        public void showContent() {
+            System.out.println("Module: " + moduleName);
+            for (ContentComponent c : components) {
+                c.showContent();
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // ✅ Video Listener Interface
+    // ---------------------------------------------------------------------
+    public interface VideoListener {
+        void onClick(int position, String key, String videoUrl, int size);
+    }
 }
