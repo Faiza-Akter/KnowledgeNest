@@ -17,3 +17,5 @@ public class LoginStrategy implements AuthStrategy {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(listener);
     }
 }
+
+

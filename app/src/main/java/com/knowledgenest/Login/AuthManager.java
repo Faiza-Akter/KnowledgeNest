@@ -10,6 +10,7 @@ public class AuthManager {
     private AuthStrategy loginStrategy;
     private AuthStrategy signupStrategy;
 
+
     private AuthManager() {
         auth = FirebaseAuth.getInstance();
     }

@@ -122,3 +122,5 @@ public class SignUpActivity extends AppCompatActivity {
         return networkInfo != null && networkInfo.isConnected();
     }
 }
+
+
