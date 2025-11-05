@@ -5,8 +5,29 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ActivityAssertionTest {
+    // MainActivity Logic Tests
+    @Test
+    void testToolbarTitleSwitch() {
+        int HOME = 101;
+        int PROFILE = 102;
+        int OTHER = 999;
 
-    // ===== PlayListActivity Logic Tests =====
+        String title1 = getToolbarTitle(HOME);
+        String title2 = getToolbarTitle(PROFILE);
+        String title3 = getToolbarTitle(OTHER);
+
+        assertEquals("KnowledgeNest", title1);
+        assertEquals("Profile", title2);
+        assertEquals("Unknown", title3);
+    }
+
+    private String getToolbarTitle(int selectedId) {
+        if (selectedId == 101) return "KnowledgeNest";
+        else if (selectedId == 102) return "Profile";
+        else return "Unknown";
+    }
+
+    //PlayListActivity Logic Tests
 
     @Test
     void testDescriptionValidation() {
@@ -31,7 +52,7 @@ public class ActivityAssertionTest {
 
     @Test
     void testDurationFormat() {
-        String dur1 = "3h";
+        String dur1 = "8h";
         String dur2 = "45min";
         String dur3 = "1.5h";
         String dur4 = "2";
@@ -42,38 +63,16 @@ public class ActivityAssertionTest {
         assertFalse(dur4.endsWith("h") || dur4.endsWith("min"));
     }
 
-    // ===== MainActivity Logic Tests =====
 
-    @Test
-    void testToolbarTitleSwitch() {
-        int HOME = 101;
-        int PROFILE = 102;
-        int OTHER = 999;
 
-        String title1 = getToolbarTitle(HOME);
-        String title2 = getToolbarTitle(PROFILE);
-        String title3 = getToolbarTitle(OTHER);
-
-        assertEquals("KnowledgeNest", title1);
-        assertEquals("Profile", title2);
-        assertEquals("Unknown", title3);
-    }
-
-    private String getToolbarTitle(int selectedId) {
-        if (selectedId == 101) return "KnowledgeNest";
-        else if (selectedId == 102) return "Profile";
-        else return "Unknown";
-    }
-
-    // ===== SplashScreenActivity Logic =====
-
+    //SplashScreenActivity Logic
     @Test
     void testSplashDelayThreshold() {
         int delay = 1500;
         assertTrue(delay >= 1000);
     }
 
-    // ===== Intent Extras Check (PlayListActivity) =====
+    //Intent Extras Check (PlayListActivity)
 
     @Test
     void testIntentTitleCheck() {
@@ -81,7 +80,6 @@ public class ActivityAssertionTest {
         String title2 = "";
         String title3 = null;
         String title4 = "   ";
-
         assertTrue(title1 != null && !title1.trim().isEmpty());
         assertFalse(title2 != null && !title2.trim().isEmpty());
         assertFalse(title3 != null && !title3.trim().isEmpty());

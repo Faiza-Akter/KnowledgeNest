@@ -13,7 +13,9 @@ public class CourseModel {
         this.title = title;
     }
 
-    public CourseModel(String title, String duration, String rating, String description, long price, String thumbnail, String introvideo, String postedBy, String enable) {
+    public CourseModel(String title, String duration, String rating, String description,
+                       long price, String thumbnail, String introvideo,
+                       String postedBy, String enable) {
         this.title = title;
         this.duration = duration;
         this.rating = rating;
@@ -25,6 +27,22 @@ public class CourseModel {
         this.enable = enable;
     }
 
+    // ✅ Added safely for Factory Pattern (used for cloning data)
+    public void copyFrom(CourseModel other) {
+        if (other == null) return;
+        this.title = other.title;
+        this.duration = other.duration;
+        this.rating = other.rating;
+        this.description = other.description;
+        this.price = other.price;
+        this.thumbnail = other.thumbnail;
+        this.introvideo = other.introvideo;
+        this.postId = other.postId;
+        this.postedBy = other.postedBy;
+        this.enable = other.enable;
+    }
+
+    // ---------------- Getters and Setters ---------------- //
     public String getTitle() {
         return title;
     }
