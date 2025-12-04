@@ -6,7 +6,7 @@ public class PlayListModel {
     private String videoUrl;
 
     public PlayListModel() {
-        // Empty constructor required for Firebase
+
     }
 
     public PlayListModel(String key, String title, String videoUrl) {
@@ -15,7 +15,7 @@ public class PlayListModel {
         this.videoUrl = videoUrl;
     }
 
-    // Added safely for Composite Pattern (used for duplication)
+
     public void copyFrom(PlayListModel other) {
         if (other == null) return;
         this.key = other.key;
@@ -23,7 +23,7 @@ public class PlayListModel {
         this.videoUrl = other.videoUrl;
     }
 
-    // ---------------- Getters and Setters ---------------- //
+
     public String getKey() {
         return key;
     }

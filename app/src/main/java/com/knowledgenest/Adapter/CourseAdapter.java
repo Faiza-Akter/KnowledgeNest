@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder> {
 
-    //Pushing CourseAdapter
+
     private static final String TAG = "CourseAdapter";
     private final Context context;
     private final ArrayList<CourseModel> courseList;
@@ -51,7 +51,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // ✅ Use the built-in Factory to transform raw model into a CourseItem
+
         CourseModel raw = courseList.get(position);
         CourseItem courseItem = ContentFactory.create("course", raw);
         holder.bind(courseItem);
@@ -77,17 +77,17 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
         }
 
         public void bind(CourseItem course) {
-            // Load thumbnail with error handling
+
             loadThumbnail(course.getThumbnail());
 
-            // Set course details
+
             binding.courseTitle.setText(nullSafe(course.getTitle()));
             binding.coursePrice.setText(formatPrice(course.getPrice()));
 
-            // Load creator info
+
             loadCreatorInfo(course.getPostedBy());
 
-            // Set click listener
+
             itemView.setOnClickListener(v -> openCourseDetails(course));
         }
 
@@ -161,32 +161,23 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
         }
     }
 
-    // ---------------------------------------------------------------------
-    // ✅ Built-in Factory + DTO (no new package/file needed)
-    // ---------------------------------------------------------------------
 
-    /**
-     * Simple factory to create different content items. For now it returns CourseItem,
-     * but it's ready to branch out (e.g., "videoCourse", "pdfCourse", "quizCourse").
-     */
+
+
     private static class ContentFactory {
         static CourseItem create(String type, CourseModel source) {
             if (type == null) throw new IllegalArgumentException("type == null");
             switch (type.toLowerCase()) {
                 case "course":
                     return CourseItem.from(source);
-                // case "videoCourse": return CourseItem.fromVideo(source); // example for future
-                // case "pdfCourse": return CourseItem.fromPdf(source);
+
                 default:
                     throw new IllegalArgumentException("Unknown content type: " + type);
             }
         }
     }
 
-    /**
-     * A small immutable DTO used by the adapter UI layer.
-     * Keeps the adapter decoupled from the concrete model details.
-     */
+
     private static class CourseItem {
         private final String postId;
         private final String title;
