@@ -28,7 +28,6 @@ import java.util.ArrayList;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder> {
 
-    //Pushing CourseAdapter
     private static final String TAG = "CourseAdapter";
     private final Context context;
     private final ArrayList<CourseModel> courseList;
@@ -51,10 +50,13 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // ✅ Use the built-in Factory to transform raw model into a CourseItem
+
         CourseModel raw = courseList.get(position);
-        CourseItem courseItem = ContentFactory.create("course", raw);
-        holder.bind(courseItem);
+
+        // Proper Factory Pattern (enum + interface + concrete product)
+        ContentItem item = ContentFactory.create(ContentType.COURSE, raw);
+
+        holder.bind(item);
     }
 
     @Override
@@ -68,6 +70,83 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
+
+    // ============================================================
+    //                  FACTORY PATTERN IMPLEMENTATION
+    // ============================================================
+
+    // 1) Product type enum
+    private enum ContentType {
+        COURSE
+    }
+
+    // 2) Product interface (supertype)
+    private interface ContentItem {
+        String getPostId();
+        String getTitle();
+        long getPrice();
+        String getDescription();
+        String getDuration();
+        String getThumbnail();
+        String getPostedBy();
+        String getIntrovideo();
+    }
+
+    // 3) Concrete Product (CourseItem)
+    private static class CourseItem implements ContentItem {
+
+        private final String postId;
+        private final String title;
+        private final long price;
+        private final String description;
+        private final String duration;
+        private final String thumbnail;
+        private final String postedBy;
+        private final String introvideo;
+
+        CourseItem(CourseModel m) {
+            this.postId = safe(m.getPostId());
+            this.title = safe(m.getTitle());
+            this.price = m.getPrice();
+            this.description = safe(m.getDescription());
+            this.duration = safe(m.getDuration());
+            this.thumbnail = safe(m.getThumbnail());
+            this.postedBy = safe(m.getPostedBy());
+            this.introvideo = safe(m.getIntrovideo());
+        }
+
+        private static String safe(String s) {
+            return s == null ? "" : s;
+        }
+
+        @Override public String getPostId() { return postId; }
+        @Override public String getTitle() { return title; }
+        @Override public long getPrice() { return price; }
+        @Override public String getDescription() { return description; }
+        @Override public String getDuration() { return duration; }
+        @Override public String getThumbnail() { return thumbnail; }
+        @Override public String getPostedBy() { return postedBy; }
+        @Override public String getIntrovideo() { return introvideo; }
+    }
+
+    // 4) Factory Class
+    private static class ContentFactory {
+        static ContentItem create(ContentType type, CourseModel model) {
+            switch (type) {
+                case COURSE:
+                    return new CourseItem(model);
+
+                default:
+                    throw new IllegalArgumentException("Unknown ContentType: " + type);
+            }
+        }
+    }
+
+
+    // ============================================================
+    //                        VIEW HOLDER
+    // ============================================================
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         RvCourseDesignBinding binding;
 
@@ -76,18 +155,15 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
             binding = RvCourseDesignBinding.bind(itemView);
         }
 
-        public void bind(CourseItem course) {
-            // Load thumbnail with error handling
+        public void bind(ContentItem course) {
+
             loadThumbnail(course.getThumbnail());
 
-            // Set course details
-            binding.courseTitle.setText(nullSafe(course.getTitle()));
-            binding.coursePrice.setText(formatPrice(course.getPrice()));
+            binding.courseTitle.setText(course.getTitle());
+            binding.coursePrice.setText("$" + course.getPrice());
 
-            // Load creator info
             loadCreatorInfo(course.getPostedBy());
 
-            // Set click listener
             itemView.setOnClickListener(v -> openCourseDetails(course));
         }
 
@@ -113,10 +189,6 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
             }
         }
 
-        private String formatPrice(long price) {
-            return "$" + price;
-        }
-
         private void loadCreatorInfo(String creatorId) {
             if (creatorId != null && !creatorId.isEmpty()) {
                 database.getReference().child("admin_details").child(creatorId)
@@ -126,7 +198,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
                                 if (snapshot.exists()) {
                                     UserModel creator = snapshot.getValue(UserModel.class);
                                     if (creator != null) {
-                                        binding.name.setText(nullSafe(creator.getName()));
+                                        binding.name.setText(creator.getName());
                                     }
                                 }
                             }
@@ -139,101 +211,22 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder
             }
         }
 
-        private void openCourseDetails(CourseItem course) {
+        private void openCourseDetails(ContentItem course) {
             try {
                 Intent intent = new Intent(context, PlayListActivity.class);
-                intent.putExtra("postId", nullSafe(course.getPostId()));
-                intent.putExtra("title", nullSafe(course.getTitle()));
+                intent.putExtra("postId", course.getPostId());
+                intent.putExtra("title", course.getTitle());
                 intent.putExtra("price", course.getPrice());
-                intent.putExtra("duration", nullSafe(course.getDuration()));
-                intent.putExtra("desc", nullSafe(course.getDescription()));
-                intent.putExtra("introUrl", nullSafe(course.getIntrovideo()));
-                intent.putExtra("name", binding.name.getText() != null ? binding.name.getText().toString() : "");
+                intent.putExtra("duration", course.getDuration());
+                intent.putExtra("desc", course.getDescription());
+                intent.putExtra("introUrl", course.getIntrovideo());
+                intent.putExtra("name", binding.name.getText().toString());
                 context.startActivity(intent);
+
             } catch (Exception e) {
                 Log.e(TAG, "Error opening course: " + e.getMessage());
                 Toast.makeText(context, "Error opening course", Toast.LENGTH_SHORT).show();
             }
         }
-
-        private String nullSafe(String s) {
-            return s == null ? "" : s;
-        }
-    }
-
-    // ---------------------------------------------------------------------
-    // ✅ Built-in Factory + DTO (no new package/file needed)
-    // ---------------------------------------------------------------------
-
-    /**
-     * Simple factory to create different content items. For now it returns CourseItem,
-     * but it's ready to branch out (e.g., "videoCourse", "pdfCourse", "quizCourse").
-     */
-    private static class ContentFactory {
-        static CourseItem create(String type, CourseModel source) {
-            if (type == null) throw new IllegalArgumentException("type == null");
-            switch (type.toLowerCase()) {
-                case "course":
-                    return CourseItem.from(source);
-                // case "videoCourse": return CourseItem.fromVideo(source); // example for future
-                // case "pdfCourse": return CourseItem.fromPdf(source);
-                default:
-                    throw new IllegalArgumentException("Unknown content type: " + type);
-            }
-        }
-    }
-
-    /**
-     * A small immutable DTO used by the adapter UI layer.
-     * Keeps the adapter decoupled from the concrete model details.
-     */
-    private static class CourseItem {
-        private final String postId;
-        private final String title;
-        private final long price;
-        private final String description;
-        private final String duration;
-        private final String thumbnail;
-        private final String postedBy;
-        private final String introvideo;
-
-        private CourseItem(String postId, String title, long price, String description,
-                           String duration, String thumbnail, String postedBy, String introvideo) {
-            this.postId = postId;
-            this.title = title;
-            this.price = price;
-            this.description = description;
-            this.duration = duration;
-            this.thumbnail = thumbnail;
-            this.postedBy = postedBy;
-            this.introvideo = introvideo;
-        }
-
-        static CourseItem from(CourseModel m) {
-            if (m == null) {
-                return new CourseItem("", "", 0L, "", "", "", "", "");
-            }
-            return new CourseItem(
-                    safe(m.getPostId()),
-                    safe(m.getTitle()),
-                    m.getPrice(),
-                    safe(m.getDescription()),
-                    safe(m.getDuration()),
-                    safe(m.getThumbnail()),
-                    safe(m.getPostedBy()),
-                    safe(m.getIntrovideo())
-            );
-        }
-
-        private static String safe(String s) { return s == null ? "" : s; }
-
-        public String getPostId() { return postId; }
-        public String getTitle() { return title; }
-        public long getPrice() { return price; }
-        public String getDescription() { return description; }
-        public String getDuration() { return duration; }
-        public String getThumbnail() { return thumbnail; }
-        public String getPostedBy() { return postedBy; }
-        public String getIntrovideo() { return introvideo; }
     }
 }

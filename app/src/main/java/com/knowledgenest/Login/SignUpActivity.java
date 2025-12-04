@@ -9,27 +9,20 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Patterns;
-import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.knowledgenest.Model.UserModel;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivitySignUpBinding;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    ActivitySignUpBinding binding;
-    FirebaseAuth auth;
-    FirebaseDatabase database;
-    Dialog loadingDialog;
+    private ActivitySignUpBinding binding;
+    private Dialog loadingDialog;
+    private AuthManager authManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +30,6 @@ public class SignUpActivity extends AppCompatActivity {
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-
-        // Setup loading dialog
         loadingDialog = new Dialog(this);
         loadingDialog.setContentView(R.layout.loading_dialog);
         if (loadingDialog.getWindow() != null) {
@@ -48,47 +37,83 @@ public class SignUpActivity extends AppCompatActivity {
             loadingDialog.setCancelable(false);
         }
 
-        binding.btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = binding.edtName.getText().toString().trim();
-                String email = binding.edtEmail.getText().toString().trim();
-                String password = binding.edtPassword.getText().toString().trim();
+        authManager = AuthManager.getInstance();
+        authManager.setSignupStrategy(new SignUpStrategy(authManager.getAuth()));
 
-                if (name.isEmpty()) {
-                    binding.edtName.setError("Enter your name");
-                    binding.edtName.requestFocus();
-                } else if (email.isEmpty()) {
-                    binding.edtEmail.setError("Enter your email");
-                    binding.edtEmail.requestFocus();
-                } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    binding.edtEmail.setError("Enter a valid email");
-                    binding.edtEmail.requestFocus();
-                } else if (password.isEmpty()) {
-                    binding.edtPassword.setError("Enter your password");
-                    binding.edtPassword.requestFocus();
-                } else if (password.length() < 6) {
-                    binding.edtPassword.setError("Password must be at least 6 characters");
-                    binding.edtPassword.requestFocus();
+        binding.btnSignUp.setOnClickListener(v -> {
+            String name = binding.edtName.getText().toString().trim();
+            String email = binding.edtEmail.getText().toString().trim();
+            String password = binding.edtPassword.getText().toString().trim();
+
+            if (!validateInputs(name, email, password)) return;
+            if (!isNetworkAvailable()) {
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            loadingDialog.show();
+            authManager.executeSignup(email, password, task -> {
+                if (task.isSuccessful()) {
+                    String userId = authManager.getAuth().getCurrentUser().getUid();
+                    UserModel model = new UserModel(name, email, password,
+                            "https://firebasestorage.googleapis.com/v0/b/knowledge-nest-ff0a2.appspot.com/o/pp.png.png?alt=media");
+
+                    com.google.firebase.database.FirebaseDatabase.getInstance().getReference()
+                            .child("user_details").child(userId)
+                            .setValue(model).addOnCompleteListener(userTask -> {
+                                loadingDialog.dismiss();
+                                if (userTask.isSuccessful()) {
+                                    authManager.getAuth().getCurrentUser().sendEmailVerification()
+                                            .addOnCompleteListener(emailTask -> {
+                                                if (emailTask.isSuccessful()) {
+                                                    Toast.makeText(this, "Registration successful! Verify your email.", Toast.LENGTH_LONG).show();
+                                                    authManager.getAuth().signOut();
+                                                    startActivity(new Intent(this, SignInActivity.class));
+                                                    finish();
+                                                } else {
+                                                    Toast.makeText(this, "Failed to send verification email: " + emailTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                } else {
+                                    Toast.makeText(this, "Failed to save user data: " + userTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                 } else {
-                    if (!isNetworkAvailable()) {
-                        Toast.makeText(SignUpActivity.this,
-                                "No internet connection",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    signup(name, email, password);
+                    loadingDialog.dismiss();
+                    Toast.makeText(this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }
+            });
         });
 
-        binding.alreadyAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
-                finish();
-            }
+        binding.alreadyAccount.setOnClickListener(v -> {
+            startActivity(new Intent(this, SignInActivity.class));
+            finish();
         });
+    }
+
+    private boolean validateInputs(String name, String email, String password) {
+        if (name.isEmpty()) {
+            binding.edtName.setError("Enter your name");
+            binding.edtName.requestFocus();
+            return false;
+        } else if (email.isEmpty()) {
+            binding.edtEmail.setError("Enter your email");
+            binding.edtEmail.requestFocus();
+            return false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.edtEmail.setError("Enter a valid email");
+            binding.edtEmail.requestFocus();
+            return false;
+        } else if (password.isEmpty()) {
+            binding.edtPassword.setError("Enter your password");
+            binding.edtPassword.requestFocus();
+            return false;
+        } else if (password.length() < 6) {
+            binding.edtPassword.setError("Password must be at least 6 characters");
+            binding.edtPassword.requestFocus();
+            return false;
+        }
+        return true;
     }
 
     private boolean isNetworkAvailable() {
@@ -96,63 +121,6 @@ public class SignUpActivity extends AppCompatActivity {
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
-
-    private void signup(String name, String email, String password) {
-        loadingDialog.show();
-
-        auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            String userId = auth.getCurrentUser().getUid();
-                            UserModel model = new UserModel(
-                                    name,
-                                    email,
-                                    password,
-                                    "https://firebasestorage.googleapis.com/v0/b/knowledge-nest-ff0a2.firebasestorage.app/o/pp.png.png?alt=media&token=e279cead-3799-4059-8e50-5070d8d9c561"
-                            );
-
-                            database.getReference().child("user_details").child(userId)
-                                    .setValue(model)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                auth.getCurrentUser().sendEmailVerification()
-                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                loadingDialog.dismiss();
-                                                                if (task.isSuccessful()) {
-                                                                    Toast.makeText(SignUpActivity.this,
-                                                                            "Registration successful! Please verify your email",
-                                                                            Toast.LENGTH_LONG).show();
-                                                                    auth.signOut();
-                                                                    startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
-                                                                    finish();
-                                                                } else {
-                                                                    Toast.makeText(SignUpActivity.this,
-                                                                            "Failed to send verification email: " + task.getException().getMessage(),
-                                                                            Toast.LENGTH_SHORT).show();
-                                                                }
-                                                            }
-                                                        });
-                                            } else {
-                                                loadingDialog.dismiss();
-                                                Toast.makeText(SignUpActivity.this,
-                                                        "Failed to save user data: " + task.getException().getMessage(),
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-                        } else {
-                            loadingDialog.dismiss();
-                            Toast.makeText(SignUpActivity.this,
-                                    "Registration failed: " + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 }
+
+

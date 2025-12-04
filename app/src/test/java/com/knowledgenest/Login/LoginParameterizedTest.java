@@ -1,6 +1,7 @@
 package com.knowledgenest.Login;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -59,10 +60,10 @@ public class LoginParameterizedTest {
 
     // ValueSource - Passwords
     @ParameterizedTest
-    @ValueSource(strings = {"abcdef", "123456", "mypassword"})
+    @ValueSource(strings = {"abcdef", "123456", "password"})
     void testPasswordLengthShouldBeValid(String password) {
         boolean isValid = password != null && password.length() >= 6;
-        assertEquals(true, isValid,"Password is too short");
+        assertTrue(isValid, "Password is too short");
     }
 
     // MethodSource - name validation
@@ -82,7 +83,7 @@ public class LoginParameterizedTest {
         );
     }
 
-    // CsvFileSource - Forget Password email (file should be in src/test/resources/emails.csv)
+    // CsvFileSource - Forget Password email
     @ParameterizedTest
     @CsvFileSource(resources = "/emails.csv", numLinesToSkip = 1)
     void testForgetPasswordEmailValidation(String email, boolean expectedValid) {
