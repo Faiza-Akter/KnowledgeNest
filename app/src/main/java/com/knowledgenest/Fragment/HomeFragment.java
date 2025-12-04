@@ -15,57 +15,61 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.knowledgenest.Adapter.CourseAdapter;
 import com.knowledgenest.Model.CourseModel;
 import com.knowledgenest.R;
 import com.knowledgenest.databinding.FragmentHomeBinding;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
-    private FirebaseAuth auth;
-    private FirebaseDatabase database;
+
     private Dialog loadingDialog;
     private ArrayList<CourseModel> courseList;
     private CourseAdapter adapter;
 
-    public HomeFragment() {
-          // Required empty public constructor
-    }
+    // Facade instance
+    private FirebaseFacade firebaseFacade;
 
+    public HomeFragment() {}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+        firebaseFacade = new FirebaseFacade(); // Using Facade Pattern
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
+
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        initializeComponents();
+
+        initializeLoadingDialog();
         setupRecyclerView();
-        loadCourses();
+        loadCourses();   // Facade + Iterator Pattern
+
         return binding.getRoot();
     }
 
-    private void initializeComponents() {
+    private void initializeLoadingDialog() {
         loadingDialog = new Dialog(requireContext());
         loadingDialog.setContentView(R.layout.loading_dialog);
+
         if (loadingDialog.getWindow() != null) {
-            loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            loadingDialog.setCancelable(false);
+            loadingDialog.getWindow()
+                    .setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
+        loadingDialog.setCancelable(false);
         loadingDialog.show();
     }
 
@@ -77,44 +81,52 @@ public class HomeFragment extends Fragment {
         binding.rvCourse.setAdapter(adapter);
     }
 
+    // ================== USING BOTH PATTERNS HERE =====================
     private void loadCourses() {
-        database.getReference().child("courses") // Changed from "course" to "courses" to match admin app
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        courseList.clear();
-                        if (snapshot.exists()) {
-                            for (DataSnapshot courseSnapshot : snapshot.getChildren()) {
-                                try {
-                                    CourseModel course = courseSnapshot.getValue(CourseModel.class);
-                                    if (course != null) {
-                                        course.setPostId(courseSnapshot.getKey());
-                                        // Only show courses that are enabled
-                                        if ("false".equalsIgnoreCase(course.getEnable())) {
-                                            courseList.add(course);
-                                            Log.d(TAG, "Added course: " + course.getTitle() +
-                                                    " | Thumbnail: " + course.getThumbnail());
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    Log.e(TAG, "Error parsing course data", e);
+
+        firebaseFacade.getCourses(new ValueEventListener() { // FACADE Pattern
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                courseList.clear();
+
+                if (snapshot.exists()) {
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        try {
+                            CourseModel model = data.getValue(CourseModel.class);
+                            if (model != null) {
+                                model.setPostId(data.getKey());
+
+                                if ("false".equalsIgnoreCase(model.getEnable())) {
+                                    courseList.add(model);
                                 }
                             }
-                        } else {
-                            Log.d(TAG, "No courses found in database");
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing course", e);
                         }
-                        adapter.notifyDataSetChanged();
-                        loadingDialog.dismiss();
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        loadingDialog.dismiss();
-                        Log.e(TAG, "Database error: " + error.getMessage(), error.toException());
-                        Toast.makeText(getContext(), "Failed to load courses: " +
-                                error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                // =============== ITERATOR PATTERN IMPLEMENTED HERE ===============
+                CourseIterator iterator = new CourseIterator(courseList);
+                while (iterator.hasNext()) {
+                    CourseModel c = iterator.next();
+                    Log.d(TAG, "Iterator reading: " + c.getTitle());
+                }
+                // =================================================================
+
+                adapter.notifyDataSetChanged();
+                loadingDialog.dismiss();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                loadingDialog.dismiss();
+                Toast.makeText(getContext(),
+                        "Error loading courses: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -122,6 +134,44 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
+        }
+    }
+
+
+    // =====================================================================
+    // PATTERN 1: FACADE (INNER CLASS – NO EXTRA FILE NEEDED)
+    // =====================================================================
+    private class FirebaseFacade {
+
+        // Simplifies Firebase calls → Facade Pattern
+        public void getCourses(ValueEventListener listener) {
+            FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child("courses")
+                    .addValueEventListener(listener);
+        }
+    }
+
+    // =====================================================================
+    // PATTERN 2: ITERATOR (INNER CLASS – NO EXTRA FILE NEEDED)
+    // =====================================================================
+    private class CourseIterator implements Iterator<CourseModel> {
+
+        private final ArrayList<CourseModel> list;
+        private int index = 0;
+
+        public CourseIterator(ArrayList<CourseModel> list) {
+            this.list = list;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return index < list.size();
+        }
+
+        @Override
+        public CourseModel next() {
+            return list.get(index++);
         }
     }
 }
