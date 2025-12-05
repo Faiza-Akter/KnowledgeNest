@@ -15,7 +15,7 @@ import com.knowledgenest.databinding.RvPlaylistDesignBinding;
 import java.util.ArrayList;
 import java.util.List;
 
-// ✅ PlayListAdapter using Composite Pattern (Module → Lesson)
+
 public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHolder> {
 
     private final Context context;
@@ -46,9 +46,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
         return list.size();
     }
 
-    // ---------------------------------------------------------------------
-    // ✅ ViewHolder
-    // ---------------------------------------------------------------------
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         RvPlaylistDesignBinding binding;
 
@@ -65,7 +63,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
             Module module = new Module("Module " + (position + 1));
             module.add(lesson);
 
-            // Show hierarchy in logs (or later on UI)
+            // Show hierarchy in logs
             module.showContent();
 
             itemView.setOnClickListener(view ->
@@ -73,16 +71,14 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
         }
     }
 
-    // ---------------------------------------------------------------------
-    // ✅ Composite Pattern Implementation (inside same file)
-    // ---------------------------------------------------------------------
+
 
     // Component Interface
     interface ContentComponent {
         void showContent();
     }
 
-    // Leaf - Lesson
+    // Leaf
     static class Lesson implements ContentComponent {
         private final String title;
         private final String videoUrl;
@@ -98,7 +94,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
         }
     }
 
-    // Composite - Module (can hold multiple lessons)
+    // Composite
     static class Module implements ContentComponent {
         private final String moduleName;
         private final List<ContentComponent> components = new ArrayList<>();
@@ -120,9 +116,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.ViewHo
         }
     }
 
-    // ---------------------------------------------------------------------
-    // ✅ Video Listener Interface
-    // ---------------------------------------------------------------------
+
     public interface VideoListener {
         void onClick(int position, String key, String videoUrl, int size);
     }

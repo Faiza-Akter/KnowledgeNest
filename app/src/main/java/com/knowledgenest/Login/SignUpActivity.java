@@ -38,7 +38,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         authManager = AuthManager.getInstance();
-        authManager.setSignupStrategy(new SignUpStrategy(authManager.getAuth()));
+        authManager.setStrategy(new SignUpStrategy(authManager.getAuth()));
 
         binding.btnSignUp.setOnClickListener(v -> {
             String name = binding.edtName.getText().toString().trim();
@@ -52,7 +52,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
 
             loadingDialog.show();
-            authManager.executeSignup(email, password, task -> {
+            authManager.execute(email, password, task -> {
                 if (task.isSuccessful()) {
                     String userId = authManager.getAuth().getCurrentUser().getUid();
                     UserModel model = new UserModel(name, email, password,

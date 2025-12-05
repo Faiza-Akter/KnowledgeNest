@@ -6,7 +6,7 @@ public class CourseModel {
     private String thumbnail, introvideo, postId, postedBy, enable;
 
     public CourseModel() {
-        // Empty constructor needed for Firebase
+
     }
 
     public CourseModel(String title) {
@@ -27,7 +27,7 @@ public class CourseModel {
         this.enable = enable;
     }
 
-    // ✅ Added safely for Factory Pattern (used for cloning data)
+
     public void copyFrom(CourseModel other) {
         if (other == null) return;
         this.title = other.title;
@@ -42,7 +42,7 @@ public class CourseModel {
         this.enable = other.enable;
     }
 
-    // ---------------- Getters and Setters ---------------- //
+
     public String getTitle() {
         return title;
     }

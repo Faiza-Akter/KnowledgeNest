@@ -39,7 +39,7 @@ public class SignInActivity extends AppCompatActivity {
         }
 
         authManager = AuthManager.getInstance();
-        authManager.setLoginStrategy(new LoginStrategy(authManager.getAuth()));
+        authManager.setStrategy(new LoginStrategy(authManager.getAuth()));
 
         binding.btnSignIn.setOnClickListener(v -> {
             String email = binding.edtEmail.getText().toString().trim();
@@ -52,7 +52,7 @@ public class SignInActivity extends AppCompatActivity {
             }
 
             loadingDialog.show();
-            authManager.executeLogin(email, password, task -> {
+            authManager.execute(email, password, task -> {
                 loadingDialog.dismiss();
                 if (task.isSuccessful()) {
                     if (authManager.getAuth().getCurrentUser().isEmailVerified()) {

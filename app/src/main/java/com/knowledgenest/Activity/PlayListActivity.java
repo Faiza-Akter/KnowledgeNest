@@ -28,6 +28,7 @@ import com.knowledgenest.R;
 import com.knowledgenest.databinding.ActivityPlayListBinding;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlayListActivity extends AppCompatActivity {
 
@@ -43,9 +44,35 @@ public class PlayListActivity extends AppCompatActivity {
     private Dialog loadingDialog;
 
     // ------------------ MEMENTO PATTERN VARIABLES ------------------
-    private PlayerMemento savedState = null;   // object to store player state
-    private String currentVideoUrl = "";       // last played video URL
+    private PlayerMemento savedState = null;
+    private String currentVideoUrl = "";
     // ----------------------------------------------------------------
+
+
+    // ================================================================
+    //              OBSERVER PATTERN IMPLEMENTATION
+    // ================================================================
+
+    // OBSERVER INTERFACE
+    interface PlaylistObserver {
+        void onPlaylistUpdated(List<PlayListModel> newList);
+    }
+
+    // SUBJECT (Observable) - PlayListActivity acts as Subject
+    private final List<PlaylistObserver> observers = new ArrayList<>();
+
+    private void registerObserver(PlaylistObserver observer) {
+        observers.add(observer);
+    }
+
+    private void notifyObservers() {
+        for (PlaylistObserver obs : observers) {
+            obs.onPlaylistUpdated(playlist);
+        }
+    }
+    // ================================================================
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +80,6 @@ public class PlayListActivity extends AppCompatActivity {
         binding = ActivityPlayListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Edge-to-edge rendering
         EdgeToEdge.enable(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -109,7 +135,7 @@ public class PlayListActivity extends AppCompatActivity {
         try {
             player = new SimpleExoPlayer.Builder(this).build();
             binding.exoplayer2.setPlayer(player);
-            currentVideoUrl = introUrl; // initial URL saved for Memento
+            currentVideoUrl = introUrl;
 
             MediaItem mediaItem = MediaItem.fromUri(introUrl);
             player.setMediaItem(mediaItem);
@@ -122,12 +148,22 @@ public class PlayListActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         binding.rvPlayList.setLayoutManager(new LinearLayoutManager(this));
+
+        // Adapter registers as an OBSERVER
         adapter = new PlayListAdapter(this, playlist, (position, key, videoUrl, size) -> {
-            playVideo(videoUrl);  // switching videos updates Memento state automatically
+            playVideo(videoUrl);
         });
+
+        // Registering adapter as observer (Observer Pattern)
+        registerObserver(newList -> adapter.notifyDataSetChanged());
+
         binding.rvPlayList.setAdapter(adapter);
     }
 
+
+    // ================================================================
+    //         PLAYLIST DATA LOAD + OBSERVER NOTIFICATION
+    // ================================================================
     private void loadPlaylistData() {
         FirebaseDatabase.getInstance().getReference()
                 .child("course")
@@ -145,7 +181,8 @@ public class PlayListActivity extends AppCompatActivity {
                                 playlist.add(item);
                             }
                         }
-                        adapter.notifyDataSetChanged();
+
+                        notifyObservers();  // OBSERVER PATTERN - notify changes
                         loadingDialog.dismiss();
                     }
 
@@ -155,15 +192,21 @@ public class PlayListActivity extends AppCompatActivity {
                     }
                 });
     }
+    // ================================================================
+
+
 
     private void toggleViews(boolean showDescription) {
         binding.description.setVisibility(showDescription ? View.VISIBLE : View.GONE);
         binding.rvPlayList.setVisibility(showDescription ? View.GONE : View.VISIBLE);
     }
 
-    // ----------------------- MEMENTO PATTERN ------------------------
 
-    // Memento class to store video player state
+
+    // ================================================================
+    //                       MEMENTO PATTERN
+    // ================================================================
+
     private static class PlayerMemento {
         String videoUrl;
         long position;
@@ -174,7 +217,6 @@ public class PlayListActivity extends AppCompatActivity {
         }
     }
 
-    // Save video state before screen leaves
     private void savePlayerState() {
         if (player != null) {
             savedState = new PlayerMemento(currentVideoUrl, player.getCurrentPosition());
@@ -182,7 +224,6 @@ public class PlayListActivity extends AppCompatActivity {
         }
     }
 
-    // Restore state when screen returns
     private void restorePlayerState() {
         if (savedState != null && player != null) {
             player.setMediaItem(MediaItem.fromUri(savedState.videoUrl));
@@ -194,10 +235,9 @@ public class PlayListActivity extends AppCompatActivity {
         }
     }
 
-    // When video is changed from playlist
     private void playVideo(String videoUrl) {
         try {
-            currentVideoUrl = videoUrl; // Save URL for Memento
+            currentVideoUrl = videoUrl;
 
             player.stop();
             player.clearMediaItems();
@@ -209,7 +249,7 @@ public class PlayListActivity extends AppCompatActivity {
         }
     }
 
-    // Save & restore using Activity lifecycle
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -225,16 +265,12 @@ public class PlayListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (player != null) {
-            player.release();
-        }
+        if (player != null) player.release();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (player != null) {
-            player.pause();
-        }
+        if (player != null) player.pause();
     }
 }

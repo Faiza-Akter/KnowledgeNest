@@ -17,5 +17,3 @@ public class SignUpStrategy implements AuthStrategy {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(listener);
     }
 }
-
-
