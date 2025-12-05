@@ -17,8 +17,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -34,12 +34,19 @@ public class PlayListActivity extends AppCompatActivity {
 
     private static final String TAG = "PlayListActivity";
     ActivityPlayListBinding binding;
+
     private String postId, postedByName, introUrl, title, duration, rating, description;
     private long price;
+
     private SimpleExoPlayer player;
     private ArrayList<PlayListModel> playlist = new ArrayList<>();
     private PlayListAdapter adapter;
     private Dialog loadingDialog;
+
+    // ------------------ MEMENTO PATTERN VARIABLES ------------------
+    private PlayerMemento savedState = null;   // object to store player state
+    private String currentVideoUrl = "";       // last played video URL
+    // ----------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +54,7 @@ public class PlayListActivity extends AppCompatActivity {
         binding = ActivityPlayListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Edge-to-edge initialization
+        // Edge-to-edge rendering
         EdgeToEdge.enable(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -55,7 +62,6 @@ public class PlayListActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize components
         initLoadingDialog();
         verifyIntentExtras();
         setupUI();
@@ -67,15 +73,12 @@ public class PlayListActivity extends AppCompatActivity {
     private void initLoadingDialog() {
         loadingDialog = new Dialog(this);
         loadingDialog.setContentView(R.layout.loading_dialog);
-        if (loadingDialog.getWindow() != null) {
-            loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            loadingDialog.setCancelable(false);
-        }
+        loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        loadingDialog.setCancelable(false);
         loadingDialog.show();
     }
 
     private void verifyIntentExtras() {
-        // Get and verify all intent extras
         postId = getIntent().getStringExtra("postId");
         postedByName = getIntent().getStringExtra("name");
         introUrl = getIntent().getStringExtra("introUrl");
@@ -84,78 +87,49 @@ public class PlayListActivity extends AppCompatActivity {
         duration = getIntent().getStringExtra("duration");
         rating = getIntent().getStringExtra("rate");
         description = getIntent().getStringExtra("desc");
-
-        // Log verification data
-        Log.d(TAG, "=== INTENT VERIFICATION ===");
-        Log.d(TAG, "postId: " + (postId != null ? "✓" : "✗"));
-        Log.d(TAG, "name: " + (postedByName != null ? "✓" : "✗"));
-        Log.d(TAG, "introUrl: " + (introUrl != null ? "✓" : "✗"));
-        Log.d(TAG, "title: " + (title != null ? "✓" : "✗"));
-        Log.d(TAG, "price: " + price);
-        Log.d(TAG, "duration: " + (duration != null ? "✓" : "✗"));
-        Log.d(TAG, "rate: " + (rating != null ? "✓" : "✗"));
-        Log.d(TAG, "desc: " + (description != null ? "✓" : "✗ (CRITICAL)"));
     }
 
     private void setupUI() {
-        // Set basic course info
-        binding.title.setText(title != null ? title : "No Title");
-        binding.createdBy.setText(postedByName != null ? postedByName : "Unknown Creator");
-        binding.rating.setText(rating != null ? rating : "0.0");
-        binding.duration.setText(duration != null ? duration : "0h");
+        binding.title.setText(title);
+        binding.createdBy.setText(postedByName);
+        binding.rating.setText(rating);
+        binding.duration.setText(duration);
         binding.price.setText(String.valueOf(price));
 
-        // Handle description with verification
-        if (description != null && !description.trim().isEmpty()) {
+        if (description != null && !description.isEmpty()) {
             binding.description.setText(description);
-            Log.d(TAG, "Description set successfully");
         } else {
             binding.description.setText("No description available");
-            Log.w(TAG, "Empty or null description received");
-            Toast.makeText(this, "Warning: Course description missing", Toast.LENGTH_SHORT).show();
         }
 
-        // Setup click listeners
         binding.txtDescription.setOnClickListener(v -> toggleViews(true));
         binding.btnPlayList.setOnClickListener(v -> toggleViews(false));
     }
 
     private void initializePlayer() {
         try {
-            if (introUrl == null || introUrl.isEmpty()) {
-                throw new IllegalArgumentException("Intro video URL is empty");
-            }
-
             player = new SimpleExoPlayer.Builder(this).build();
             binding.exoplayer2.setPlayer(player);
+            currentVideoUrl = introUrl; // initial URL saved for Memento
+
             MediaItem mediaItem = MediaItem.fromUri(introUrl);
             player.setMediaItem(mediaItem);
             player.prepare();
             player.play();
-            Log.d(TAG, "Player initialized successfully");
         } catch (Exception e) {
-            Log.e(TAG, "Player initialization failed: " + e.getMessage());
-            Toast.makeText(this, "Video playback error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Video error", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void setupRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        binding.rvPlayList.setLayoutManager(layoutManager);
-
+        binding.rvPlayList.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PlayListAdapter(this, playlist, (position, key, videoUrl, size) -> {
-            playVideo(videoUrl);
+            playVideo(videoUrl);  // switching videos updates Memento state automatically
         });
         binding.rvPlayList.setAdapter(adapter);
     }
 
     private void loadPlaylistData() {
-        if (postId == null || postId.isEmpty()) {
-            Log.e(TAG, "Invalid postId for playlist loading");
-            loadingDialog.dismiss();
-            return;
-        }
-
         FirebaseDatabase.getInstance().getReference()
                 .child("course")
                 .child(postId)
@@ -163,18 +137,14 @@ public class PlayListActivity extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                         playlist.clear();
-                        if (snapshot.exists()) {
-                            for (DataSnapshot data : snapshot.getChildren()) {
-                                PlayListModel item = data.getValue(PlayListModel.class);
-                                if (item != null) {
-                                    item.setKey(data.getKey());
-                                    playlist.add(item);
-                                    Log.d(TAG, "Added playlist item: " + item.getKey());
-                                }
+                        for (DataSnapshot data : snapshot.getChildren()) {
+                            PlayListModel item = data.getValue(PlayListModel.class);
+                            if (item != null) {
+                                item.setKey(data.getKey());
+                                playlist.add(item);
                             }
-                        } else {
-                            Log.d(TAG, "No playlist items found");
                         }
                         adapter.notifyDataSetChanged();
                         loadingDialog.dismiss();
@@ -182,9 +152,7 @@ public class PlayListActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e(TAG, "Playlist load error: " + error.getMessage());
                         loadingDialog.dismiss();
-                        Toast.makeText(PlayListActivity.this, "Error loading playlist", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -194,20 +162,65 @@ public class PlayListActivity extends AppCompatActivity {
         binding.rvPlayList.setVisibility(showDescription ? View.GONE : View.VISIBLE);
     }
 
+    // ----------------------- MEMENTO PATTERN ------------------------
+
+    // Memento class to store video player state
+    private static class PlayerMemento {
+        String videoUrl;
+        long position;
+
+        PlayerMemento(String videoUrl, long position) {
+            this.videoUrl = videoUrl;
+            this.position = position;
+        }
+    }
+
+    // Save video state before screen leaves
+    private void savePlayerState() {
+        if (player != null) {
+            savedState = new PlayerMemento(currentVideoUrl, player.getCurrentPosition());
+            Log.d(TAG, "Memento Saved → " + savedState.videoUrl + " @ " + savedState.position);
+        }
+    }
+
+    // Restore state when screen returns
+    private void restorePlayerState() {
+        if (savedState != null && player != null) {
+            player.setMediaItem(MediaItem.fromUri(savedState.videoUrl));
+            player.prepare();
+            player.seekTo(savedState.position);
+            player.play();
+
+            Log.d(TAG, "Memento Restored → " + savedState.videoUrl + " @ " + savedState.position);
+        }
+    }
+
+    // When video is changed from playlist
     private void playVideo(String videoUrl) {
         try {
-            if (player == null) return;
+            currentVideoUrl = videoUrl; // Save URL for Memento
 
             player.stop();
             player.clearMediaItems();
             player.setMediaItem(MediaItem.fromUri(videoUrl));
             player.prepare();
             player.play();
-            Log.d(TAG, "Playing video: " + videoUrl);
         } catch (Exception e) {
-            Log.e(TAG, "Video play error: " + e.getMessage());
             Toast.makeText(this, "Error playing video", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Save & restore using Activity lifecycle
+    @Override
+    protected void onPause() {
+        super.onPause();
+        savePlayerState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        restorePlayerState();
     }
 
     @Override
@@ -215,7 +228,6 @@ public class PlayListActivity extends AppCompatActivity {
         super.onDestroy();
         if (player != null) {
             player.release();
-            player = null;
         }
     }
 
